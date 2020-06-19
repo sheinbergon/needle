@@ -1,6 +1,7 @@
 package org.sheinbergon.corrosion.jna.win32;
 
 import com.sun.jna.platform.win32.BaseTSD;
+import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.LongByReference;
 import lombok.AccessLevel;
@@ -16,6 +17,8 @@ public class Win32AffinityResolver implements Corrosion.AffinityResolver<WinNT.H
 
     public static final Corrosion.AffinityResolver<?> INSTANCE = new Win32AffinityResolver();
 
+    private static final WinDef.BOOL TRUE = new WinDef.BOOL(true);
+    private static final WinDef.DWORD ALL_ACCESS = new WinDef.DWORD(WinNT.THREAD_ALL_ACCESS);
     private static final BaseTSD.DWORD_PTR PROCESS_AFFINITY = processAffinity();
 
     private static BaseTSD.DWORD_PTR processAffinity() {
@@ -29,7 +32,8 @@ public class Win32AffinityResolver implements Corrosion.AffinityResolver<WinNT.H
     @Nonnull
     @Override
     public WinNT.HANDLE self() {
-        return Kernel32.GetCurrentThread();
+        val id = Kernel32.GetCurrentThreadId();
+        return Kernel32.OpenThread(ALL_ACCESS, TRUE, id);
     }
 
     @Override

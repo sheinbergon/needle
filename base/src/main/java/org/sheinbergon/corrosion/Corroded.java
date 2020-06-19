@@ -5,6 +5,7 @@ import lombok.experimental.Accessors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 @Accessors(fluent = true)
 public class Corroded extends Thread {
@@ -59,6 +60,7 @@ public class Corroded extends Thread {
     @Override
     public final void run() {
         nativeId = Corrosion.self();
+        Objects.requireNonNull(nativeId);
         if (initializer != null) initializer.invoke();
         super.run();
     }
