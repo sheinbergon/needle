@@ -9,7 +9,7 @@ public class Libpthread {
     private final static String LIBRARY = "pthread";
 
     static {
-        // Only register libpthread on Linux based platforms
+        // Only register the SO on Linux based platforms
         if (Platform.isLinux()) {
             Native.register(LIBRARY);
         }

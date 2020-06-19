@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sheinbergon.corrosion.util.CoreSetException;
 
 import javax.annotation.Nonnull;
@@ -23,6 +24,18 @@ public class CoreSet {
 
     private final static Pattern RANGE = Pattern.compile("^\\s*(\\d{1,3})\\s*-\\s*(\\d{1,3})\\s*$");
     private final static Pattern SINGLE = Pattern.compile("^\\s*(\\d{1,3})\\s*$");
+
+    public static CoreSet EMPTY = new CoreSet() {
+        @Override
+        public long mask() {
+            return NumberUtils.LONG_MINUS_ONE;
+        }
+
+        @Override
+        public String toString() {
+            return NumberUtils.LONG_MINUS_ONE.toString();
+        }
+    };
 
     private final static String DELIMITER = ",";
 

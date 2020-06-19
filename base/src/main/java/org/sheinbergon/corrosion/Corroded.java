@@ -49,12 +49,12 @@ public class Corroded extends Thread {
         return Corrosion.get(this);
     }
 
-    public final CoreSet affinity(final @Nonnull String mask) {
-        return Corrosion.set(mask, this);
+    public final void affinity(final @Nonnull String mask) {
+        Corrosion.set(mask, this);
     }
 
-    public final CoreSet affinity(final long mask) {
-        return Corrosion.set(mask, this);
+    public final void affinity(final long mask) {
+        Corrosion.set(mask, this);
     }
 
     @Override
