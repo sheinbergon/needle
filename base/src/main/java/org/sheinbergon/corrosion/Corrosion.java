@@ -74,16 +74,14 @@ public class Corrosion {
         CoreSet get(@Nonnull I identifier);
     }
 
-    public static CoreSet set(final long mask) {
+    public static void set(final long mask) {
         val cores = CoreSet.from(mask);
         affinityResolver.set(cores);
-        return cores;
     }
 
-    public static CoreSet set(final @Nonnull String mask) {
+    public static void set(final @Nonnull String mask) {
         val cores = CoreSet.from(mask);
         affinityResolver.set(cores);
-        return cores;
     }
 
     public static CoreSet get() {

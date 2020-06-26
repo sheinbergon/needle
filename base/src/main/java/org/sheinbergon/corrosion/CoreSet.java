@@ -9,10 +9,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.sheinbergon.corrosion.util.CoreSetException;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -22,8 +19,10 @@ import java.util.stream.IntStream;
 @Accessors(fluent = true)
 public class CoreSet {
 
-    private final static Pattern RANGE = Pattern.compile("^\\s*(\\d{1,3})\\s*-\\s*(\\d{1,3})\\s*$");
-    private final static Pattern SINGLE = Pattern.compile("^\\s*(\\d{1,3})\\s*$");
+    private static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+    private static final int AVAILABLE_CORES_MASK = (int) Math.pow(2, AVAILABLE_CORES);
+    private static final Pattern RANGE = Pattern.compile("^\\s*(\\d{1,3})\\s*-\\s*(\\d{1,3})\\s*$");
+    private static final Pattern SINGLE = Pattern.compile("^\\s*(\\d{1,3})\\s*$");
 
     public static CoreSet EMPTY = new CoreSet() {
         @Override
@@ -40,6 +39,7 @@ public class CoreSet {
     private final static String DELIMITER = ",";
 
     public static CoreSet from(final long mask) {
+        validate(mask);
         val specifications = new HashSet<Specification>();
         Integer start = null, end = null;
         for (var core = 0; core < Long.SIZE; core++) {
@@ -57,14 +57,22 @@ public class CoreSet {
         return new CoreSet(specifications);
     }
 
-    public static CoreSet from(String mask) {
+    public static CoreSet from(final @Nonnull String mask) {
         val specifications = Arrays.stream(StringUtils.split(mask, DELIMITER))
                 .map(CoreSet::specificationFrom)
                 .collect(Collectors.toSet());
         return new CoreSet(specifications);
     }
 
-    private static Specification specificationFrom(@Nonnull String specification) {
+    private static void validate(final long mask) {
+        if (mask <= 0 || mask > AVAILABLE_CORES_MASK) {
+            throw new CoreSetException(
+                    String.format("Mask %d is out of bounds, only %d cores are available",
+                            mask, AVAILABLE_CORES));
+        }
+    }
+
+    private static Specification specificationFrom(final @Nonnull String specification) {
         int start, end;
         Matcher matcher;
         if ((matcher = RANGE.matcher(specification)).matches()) {
@@ -81,7 +89,7 @@ public class CoreSet {
     @Nonnull
     private final Set<Specification> specifications;
 
-    public CoreSet(Specification... specifications) {
+    private CoreSet(Specification... specifications) {
         this.specifications = Set.of(specifications);
     }
 
@@ -96,6 +104,25 @@ public class CoreSet {
     @Getter(lazy = true)
     private final long mask = computeMask();
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mask());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        } else if (other == this) {
+            return true;
+        } else if (!(other instanceof CoreSet)) {
+            return false;
+        } else {
+            return ((CoreSet) other).mask() == this.mask();
+        }
+    }
+
     private long computeMask() {
         return Optional.ofNullable(specifications).map(Set::stream)
                 .map(stream -> stream.map(Specification::mask))
@@ -103,7 +130,7 @@ public class CoreSet {
                 .orElseThrow(() -> new IllegalArgumentException("Empty core set"));
     }
 
-    public interface Specification {
+    private interface Specification {
 
         private static Specification from(int start, int end) {
             val diff = end - start;
@@ -116,11 +143,9 @@ public class CoreSet {
             }
         }
 
-        long mask();
-
         @RequiredArgsConstructor
         @Accessors(fluent = true)
-        public class Single implements Specification {
+        class Single implements Specification {
             private final int core;
 
             @Override
@@ -136,7 +161,7 @@ public class CoreSet {
 
         @RequiredArgsConstructor
         @Accessors(fluent = true)
-        public class Range implements Specification {
+        class Range implements Specification {
             private final int start;
             private final int end;
 
@@ -155,5 +180,7 @@ public class CoreSet {
                 return String.format("%d-%d", start, end);
             }
         }
+
+        long mask();
     }
 }
