@@ -18,6 +18,10 @@ val binaryTestMask by lazy {
     else `1L`
 }
 
+val negatedTestMask by lazy {
+    binaryTestMask.xor(CoreSet.MASK_UPPER_BOUND - `1L`)
+}
+
 val textTestMask by lazy {
     binaryTestMaskRanges.map {
         with(it) {
