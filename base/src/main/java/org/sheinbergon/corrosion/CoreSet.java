@@ -21,6 +21,7 @@ public class CoreSet {
 
     private static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
     private static final int AVAILABLE_CORES_MASK = (int) Math.pow(2, AVAILABLE_CORES);
+
     private static final Pattern RANGE = Pattern.compile("^\\s*(\\d{1,3})\\s*-\\s*(\\d{1,3})\\s*$");
     private static final Pattern SINGLE = Pattern.compile("^\\s*(\\d{1,3})\\s*$");
 
@@ -61,7 +62,9 @@ public class CoreSet {
         val specifications = Arrays.stream(StringUtils.split(mask, DELIMITER))
                 .map(CoreSet::specificationFrom)
                 .collect(Collectors.toSet());
-        return new CoreSet(specifications);
+        val coreSet = new CoreSet(specifications);
+        validate(coreSet.mask());
+        return coreSet;
     }
 
     private static void validate(final long mask) {
