@@ -39,7 +39,8 @@ private val binaryTestMaskRanges: List<IntRange> by lazy {
             if (binaryMask.and(`1L`) == `1L`) {
                 if (start == `-1`) {
                     start = index
-                } else if (index + `1` == CoreSet.AVAILABLE_CORES) {
+                }
+                if (index + `1` == CoreSet.AVAILABLE_CORES) {
                     add(start..index)
                 }
             } else if (start != `-1`) {
@@ -78,4 +79,8 @@ private fun setPlatform(resolver: AffinityResolver<*>) {
     modifiers.trySetAccessible()
     modifiers.setInt(affinityResolver, affinityResolver.getModifiers() and Modifier.FINAL.inv())
     affinityResolver.set(null, resolver)
+}
+
+fun main() {
+    println(textTestMask)
 }
