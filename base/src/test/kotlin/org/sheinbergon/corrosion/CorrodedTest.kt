@@ -112,7 +112,7 @@ class CorrodedTest {
     @Test
     fun `Unsupported platform behavior - Corroded access`() {
         unsupportedPlatform {
-            val desiredTextMask = "3"
+            val desiredTextMask = textTestMask
             val runnable = unlatchAndSleepRunnable()
             val corroded = Corroded(runnable)
             try {
