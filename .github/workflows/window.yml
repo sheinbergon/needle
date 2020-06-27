@@ -20,4 +20,4 @@ jobs:
           architecture: x64
 
       - name: Run tests via gradle
-        run: ./gradlew clean test
+        run: gradlew.bat clean test
