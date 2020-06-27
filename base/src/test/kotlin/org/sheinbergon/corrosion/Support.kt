@@ -80,7 +80,3 @@ private fun setPlatform(resolver: AffinityResolver<*>) {
     modifiers.setInt(affinityResolver, affinityResolver.getModifiers() and Modifier.FINAL.inv())
     affinityResolver.set(null, resolver)
 }
-
-fun main() {
-    println(textTestMask)
-}
