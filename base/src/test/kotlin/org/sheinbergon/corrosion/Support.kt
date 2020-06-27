@@ -7,7 +7,47 @@ import org.sheinbergon.corrosion.jna.win32.Win32AffinityResolver
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
-internal fun unsupportedPlatform(action: () -> Unit) {
+const val `1L` = 1L
+const val `2L` = 2L
+const val `1` = 1
+const val `0` = 0
+const val `-1` = -1
+
+val binaryTestMask by lazy {
+    if (CoreSet.AVAILABLE_CORES > `1L`) CoreSet.MASK_UPPER_BOUND - `2L`
+    else `1L`
+}
+
+val textTestMask by lazy {
+    binaryTestMaskRanges.map {
+        with(it) {
+            if (first == last) "$start"
+            else "$first${CoreSet.RANGE_DELIMITER}$last"
+        }
+    }.joinToString(separator = CoreSet.SPECIFICATION_DELIMITER)
+}
+
+private val binaryTestMaskRanges: List<IntRange> by lazy {
+    var start = `-1`
+    var binaryMask = binaryTestMask
+    mutableListOf<IntRange>().apply {
+        for (index in `0` until CoreSet.AVAILABLE_CORES) {
+            if (binaryMask.and(`1L`) == `1L`) {
+                if (start == `-1`) {
+                    start = index
+                } else if (index + `1` == CoreSet.AVAILABLE_CORES) {
+                    add(start..index)
+                }
+            } else if (start != `-1`) {
+                add(start until index)
+                start = `-1`
+            }
+            binaryMask = binaryMask.shr(`1`)
+        }
+    }
+}
+
+fun unsupportedPlatform(action: () -> Unit) {
     setPlatform(AffinityResolver.NoOp.INSTANCE)
     try {
         action()

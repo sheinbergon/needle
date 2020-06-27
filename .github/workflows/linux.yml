@@ -6,7 +6,7 @@ on:
 
 jobs:
   ci:
-    name: test and coverage
+    name: run tests and check for coverage
     runs-on: ubuntu-20.04
     steps:
 
@@ -21,4 +21,3 @@ jobs:
 
       - name: Run tests via gradle
         run: ./gradlew clean test
-  

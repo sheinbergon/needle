@@ -19,11 +19,13 @@ import java.util.stream.IntStream;
 @Accessors(fluent = true)
 public class CoreSet {
 
-    private static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
-    private static final int AVAILABLE_CORES_MASK = (int) Math.pow(2, AVAILABLE_CORES);
-
     private static final Pattern RANGE = Pattern.compile("^\\s*(\\d{1,3})\\s*-\\s*(\\d{1,3})\\s*$");
     private static final Pattern SINGLE = Pattern.compile("^\\s*(\\d{1,3})\\s*$");
+
+    static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+    static final int MASK_UPPER_BOUND = (int) Math.pow(2, AVAILABLE_CORES);
+    static final String SPECIFICATION_DELIMITER = ",";
+    static final String RANGE_DELIMITER = "-";
 
     public static CoreSet EMPTY = new CoreSet() {
         @Override
@@ -37,11 +39,9 @@ public class CoreSet {
         }
     };
 
-    private final static String DELIMITER = ",";
-
     public static CoreSet from(final long mask) {
-        validate(mask);
         val specifications = new HashSet<Specification>();
+        validate(mask);
         Integer start = null, end = null;
         for (var core = 0; core < Long.SIZE; core++) {
             if (((1L << core) & mask) > 0) {
@@ -59,20 +59,12 @@ public class CoreSet {
     }
 
     public static CoreSet from(final @Nonnull String mask) {
-        val specifications = Arrays.stream(StringUtils.split(mask, DELIMITER))
+        val specifications = Arrays.stream(StringUtils.split(mask, SPECIFICATION_DELIMITER))
                 .map(CoreSet::specificationFrom)
                 .collect(Collectors.toSet());
-        val coreSet = new CoreSet(specifications);
-        validate(coreSet.mask());
-        return coreSet;
-    }
-
-    private static void validate(final long mask) {
-        if (mask <= 0 || mask > AVAILABLE_CORES_MASK) {
-            throw new CoreSetException(
-                    String.format("Mask %d is out of bounds, only %d cores are available",
-                            mask, AVAILABLE_CORES));
-        }
+        val cores = new CoreSet(specifications);
+        validate(cores.mask());
+        return cores;
     }
 
     private static Specification specificationFrom(final @Nonnull String specification) {
@@ -101,7 +93,7 @@ public class CoreSet {
         return specifications.stream()
                 .map(Specification::toString)
                 .sorted()
-                .collect(Collectors.joining(DELIMITER));
+                .collect(Collectors.joining(SPECIFICATION_DELIMITER));
     }
 
     @Getter(lazy = true)
@@ -180,10 +172,18 @@ public class CoreSet {
 
             @Override
             public String toString() {
-                return String.format("%d-%d", start, end);
+                return String.format("%d%s%d", start, RANGE_DELIMITER, end);
             }
         }
 
         long mask();
+    }
+
+    private static void validate(final long mask) {
+        if (mask <= 0 || mask > CoreSet.MASK_UPPER_BOUND) {
+            throw new CoreSetException(
+                    String.format("Mask %d is out of bounds, only %d cores are available",
+                            mask, CoreSet.AVAILABLE_CORES));
+        }
     }
 }

@@ -44,21 +44,21 @@ class CorrosionTest {
 
     @Test
     fun `Set affinity for a JVM Thread using a binary mask`() {
-        val textMask = "0-1"
-        val binaryMask: Long = 0x0000000000000003
+        val textMask = textTestMask
+        val binaryMask: Long = binaryTestMask
         val thread = thread(start = false, block = setAffinityRunnable(binaryMask))
-        launchThread(thread, binaryMask, textMask)
+        launchAndVerify(thread, binaryMask, textMask)
     }
 
     @Test
     fun `Set affinity for a JVM Thread using a text mask`() {
-        val textMask = "3"
-        val binaryMask: Long = 0x0000000000000008
+        val textMask = textTestMask
+        val binaryMask: Long = binaryTestMask
         val thread = thread(start = false, block = setAffinityRunnable(textMask))
-        launchThread(thread, binaryMask, textMask)
+        launchAndVerify(thread, binaryMask, textMask)
     }
 
-    private fun launchThread(thread: Thread, binaryMask: Long, textMask: String) {
+    private fun launchAndVerify(thread: Thread, binaryMask: Long, textMask: String) {
         try {
             thread.start()
             latch.await()
