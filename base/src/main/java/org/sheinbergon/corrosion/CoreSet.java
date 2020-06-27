@@ -32,7 +32,7 @@ public class CoreSet {
 
         @Override
         public String toString() {
-            return NumberUtils.LONG_MINUS_ONE.toString();
+            return Long.toString(mask());
         }
     };
 

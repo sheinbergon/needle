@@ -40,7 +40,7 @@ public class Corroded extends Thread {
         initializer = () -> affinity(mask);
     }
 
-    protected Corroded(final @Nonnull String mask) {
+    protected Corroded(final String mask) {
         super();
         initializer = () -> affinity(mask);
     }
@@ -57,11 +57,15 @@ public class Corroded extends Thread {
         Corrosion.set(mask, this);
     }
 
-    @Override
-    public final void run() {
+    protected final void setup() {
         nativeId = Corrosion.self();
         Objects.requireNonNull(nativeId);
         if (initializer != null) initializer.invoke();
+    }
+
+    @Override
+    public void run() {
+        setup();
         super.run();
     }
 }
