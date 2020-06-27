@@ -19,7 +19,7 @@ class CorrodedTest {
 
     @Test
     fun `Start a Corroded without an affinity mask`() {
-        val runnable = unlatchAndSleepRunnable(latch)
+        val runnable = unlatchAndSleepRunnable()
         val corroded = Corroded(runnable)
         try {
             corroded.start()
@@ -32,8 +32,8 @@ class CorrodedTest {
 
     @Test
     fun `Start a Corroded with a binary mask`() {
-        val desired: Long = 0x0000000000000003
-        val runnable = unlatchAndSleepRunnable(latch)
+        val desired: Long = binaryTestMask
+        val runnable = unlatchAndSleepRunnable()
         val corroded = Corroded(runnable, desired)
         try {
             corroded.start()
@@ -46,8 +46,8 @@ class CorrodedTest {
 
     @Test
     fun `Start a Corroded with a text mask`() {
-        val desired = "3"
-        val runnable = unlatchAndSleepRunnable(latch)
+        val desired = textTestMask
+        val runnable = unlatchAndSleepRunnable()
         val corroded = Corroded(runnable, desired)
         try {
             corroded.start()
@@ -60,9 +60,9 @@ class CorrodedTest {
 
     @Test
     fun `Change the affinity of a Corroded using a text mask during runtime`() {
-        val desiredTextMask = "3"
-        val desiredBinaryMask = 8L
-        val runnable = unlatchAndSleepRunnable(latch)
+        val desiredTextMask = textTestMask
+        val desiredBinaryMask = binaryTestMask
+        val runnable = unlatchAndSleepRunnable()
         val corroded = Corroded(runnable)
         try {
             corroded.start()
@@ -79,10 +79,9 @@ class CorrodedTest {
 
     @Test
     fun `Extend a corroded using a text mask`() {
-        val desiredTextMask = "3"
-        val desiredBinaryMask = 8L
-        val latch = CountDownLatch(1)
-        val runnable = unlatchAndSleepRunnable(latch, true)
+        val desiredTextMask = textTestMask
+        val desiredBinaryMask = binaryTestMask
+        val runnable = unlatchAndSleepRunnable(true)
         val corroded = ExtendedCorrodedTextMask(desiredTextMask, runnable)
         try {
             corroded.start()
@@ -96,10 +95,9 @@ class CorrodedTest {
 
     @Test
     fun `Extend a corroded using binary mask`() {
-        val desiredTextMask = "0-1"
-        val desiredBinaryMask: Long = 0x0000000000000003
-        val latch = CountDownLatch(1)
-        val runnable = unlatchAndSleepRunnable(latch, true)
+        val desiredTextMask = textTestMask
+        val desiredBinaryMask: Long = binaryTestMask
+        val runnable = unlatchAndSleepRunnable(true)
         val corroded = ExtendedCorrodedBinaryMask(desiredBinaryMask, runnable)
         try {
             corroded.start()
@@ -115,7 +113,7 @@ class CorrodedTest {
     fun `Unsupported platform behavior - Corroded access`() {
         unsupportedPlatform {
             val desiredTextMask = "3"
-            val runnable = unlatchAndSleepRunnable(latch)
+            val runnable = unlatchAndSleepRunnable()
             val corroded = Corroded(runnable)
             try {
                 corroded.start()
@@ -138,7 +136,7 @@ class CorrodedTest {
         override fun run() = runnable.run()
     }
 
-    private fun unlatchAndSleepRunnable(latch: CountDownLatch, setup: Boolean = false) = Runnable {
+    private fun unlatchAndSleepRunnable(setup: Boolean = false) = Runnable {
         if (setup) (Thread.currentThread() as? Corroded)?.setup()
         latch.countDown()
         runCatching { Thread.sleep(1000L) }

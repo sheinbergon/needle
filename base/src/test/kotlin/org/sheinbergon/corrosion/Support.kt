@@ -14,7 +14,7 @@ const val `0` = 0
 const val `-1` = -1
 
 val binaryTestMask by lazy {
-    if (CoreSet.AVAILABLE_CORES > `1L`) CoreSet.MASK_UPPER_BOUND - `2L`
+    if (CoreSet.AVAILABLE_CORES > `1`) CoreSet.MASK_UPPER_BOUND - `2L`
     else `1L`
 }
 
