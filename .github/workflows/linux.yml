@@ -5,19 +5,20 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  ci:
+    name: test and coverage
     runs-on: ubuntu-20.04
-    steps: 
+    steps:
 
-    - name: Git checkout 
-      uses: actions/checkout@v2
-        
-    - name: Java JDK 11 setup
-      uses: actions/setup-java@v1.3.0
-      with:
-        java-version:  11
-        architecture: x64
+      - name: Git checkout
+        uses: actions/checkout@v2
 
-    - name: Run tests via gradle
-      run: ./gradlew clean test
+      - name: Java JDK 11 setup
+        uses: actions/setup-java@v1.3.0
+        with:
+          java-version:  11
+          architecture: x64
+
+      - name: Run tests via gradle
+        run: ./gradlew clean test
   
