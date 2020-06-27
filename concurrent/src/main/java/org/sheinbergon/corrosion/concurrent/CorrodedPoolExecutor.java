@@ -7,41 +7,42 @@ import java.util.concurrent.*;
 
 public class CorrodedPoolExecutor extends ThreadPoolExecutor {
 
-    public static ExecutorService newSingleCorrodedExecutor(final @Nonnull CorrodedFactory corrodedFactory) {
+    public static ExecutorService newSingleCorrodedExecutor(final @Nonnull CorrodedFactory factory) {
         return new CorrodedPoolExecutor(NumberUtils.INTEGER_ONE,
                 NumberUtils.INTEGER_ONE,
                 NumberUtils.LONG_ZERO,
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(),
-                corrodedFactory);
+                factory);
     }
 
-    public static ExecutorService newFixedCorrodedPool(final int size,
-                                                       final @Nonnull CorrodedFactory corrodedFactory) {
+    public static ExecutorService newFixedCorrodedPool(final int size, final @Nonnull CorrodedFactory factory) {
         return new CorrodedPoolExecutor(size,
                 size,
                 NumberUtils.LONG_ZERO,
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(),
-                corrodedFactory);
+                factory);
     }
 
-    public CorrodedPoolExecutor(final int corePoolSize,
-                                final int maximumPoolSize,
-                                final long keepAliveTime,
-                                final @Nonnull TimeUnit unit,
-                                final @Nonnull BlockingQueue<Runnable> workQueue,
-                                final @Nonnull CorrodedFactory corrodedFactory) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, corrodedFactory);
+    public CorrodedPoolExecutor(
+            final int corePoolSize,
+            final int maximumPoolSize,
+            final long keepAliveTime,
+            final @Nonnull TimeUnit unit,
+            final @Nonnull BlockingQueue<Runnable> workQueue,
+            final @Nonnull CorrodedFactory factory) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory);
     }
 
-    public CorrodedPoolExecutor(final int corePoolSize,
-                                final int maximumPoolSize,
-                                final long keepAliveTime,
-                                final @Nonnull TimeUnit unit,
-                                final @Nonnull BlockingQueue<Runnable> workQueue,
-                                final @Nonnull CorrodedFactory corrodedFactory,
-                                final @Nonnull RejectedExecutionHandler handler) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, corrodedFactory, handler);
+    public CorrodedPoolExecutor(
+            final int corePoolSize,
+            final int maximumPoolSize,
+            final long keepAliveTime,
+            final @Nonnull TimeUnit unit,
+            final @Nonnull BlockingQueue<Runnable> workQueue,
+            final @Nonnull CorrodedFactory factory,
+            final @Nonnull RejectedExecutionHandler handler) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory, handler);
     }
 }

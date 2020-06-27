@@ -23,11 +23,11 @@ class CorrosionTest {
 
     private lateinit var latch: CountDownLatch
     private lateinit var binaryResult: AtomicLong
-    private lateinit var stringResult: AtomicRef<String>
+    private lateinit var textResult: AtomicRef<String>
 
     @BeforeEach
     fun setup() {
-        stringResult = atomic(StringUtils.EMPTY)
+        textResult = atomic(StringUtils.EMPTY)
         binaryResult = atomic(0x1111111111111111)
         latch = CountDownLatch(1)
     }
@@ -44,26 +44,26 @@ class CorrosionTest {
 
     @Test
     fun `Set affinity for a JVM Thread using a binary mask`() {
-        val stringMask = "0-1"
+        val textMask = "0-1"
         val binaryMask: Long = 0x0000000000000003
         val thread = thread(start = false, block = setAffinityRunnable(binaryMask))
-        launchThread(thread, binaryMask, stringMask)
+        launchThread(thread, binaryMask, textMask)
     }
 
     @Test
-    fun `Set affinity for a JVM Thread using a string mask`() {
-        val stringMask = "3"
+    fun `Set affinity for a JVM Thread using a text mask`() {
+        val textMask = "3"
         val binaryMask: Long = 0x0000000000000008
-        val thread = thread(start = false, block = setAffinityRunnable(stringMask))
-        launchThread(thread, binaryMask, stringMask)
+        val thread = thread(start = false, block = setAffinityRunnable(textMask))
+        launchThread(thread, binaryMask, textMask)
     }
 
-    private fun launchThread(thread: Thread, binaryMask: Long, stringMask: String) {
+    private fun launchThread(thread: Thread, binaryMask: Long, textMask: String) {
         try {
             thread.start()
             latch.await()
             binaryResult.value `should be equal to` binaryMask
-            stringResult.value `should be equal to` stringMask
+            textResult.value `should be equal to` textMask
         } finally {
             thread.interrupt()
         }
@@ -73,7 +73,7 @@ class CorrosionTest {
         Corrosion.set(affinity)
         val coreSet = Corrosion.get()
         binaryResult.value = coreSet.mask()
-        stringResult.value = coreSet.toString()
+        textResult.value = coreSet.toString()
         latch.countDown()
     }
 
@@ -81,7 +81,7 @@ class CorrosionTest {
         Corrosion.set(affinity)
         val coreSet = Corrosion.get()
         binaryResult.value = coreSet.mask()
-        stringResult.value = coreSet.toString()
+        textResult.value = coreSet.toString()
         latch.countDown()
     }
 }

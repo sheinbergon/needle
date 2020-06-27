@@ -19,7 +19,6 @@ public class Win32AffinityResolver implements Corrosion.AffinityResolver<WinNT.H
 
     private static final WinDef.BOOL TRUE = new WinDef.BOOL(true);
     private static final WinDef.DWORD ALL_ACCESS = new WinDef.DWORD(WinNT.THREAD_ALL_ACCESS);
-    private static final BaseTSD.DWORD_PTR PROCESS_AFFINITY = processAffinity();
 
     private static BaseTSD.DWORD_PTR processAffinity() {
         val processHandle = Kernel32.GetCurrentProcess();
@@ -56,7 +55,7 @@ public class Win32AffinityResolver implements Corrosion.AffinityResolver<WinNT.H
     @Nonnull
     @Override
     public synchronized CoreSet get(final @Nonnull WinNT.HANDLE handle) {
-        val current = Kernel32.SetThreadAffinityMask(handle, PROCESS_AFFINITY);
+        val current = Kernel32.SetThreadAffinityMask(handle, processAffinity());
         Kernel32.SetThreadAffinityMask(handle, current);
         return CoreSet.from(current.longValue());
     }

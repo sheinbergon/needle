@@ -1,5 +1,7 @@
 package org.sheinbergon.corrosion.concurrent;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -7,18 +9,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class ScheduledCorrodedPoolExecutor extends ScheduledThreadPoolExecutor {
 
-    public static ScheduledExecutorService newSingleCorrodedScheduledExecutor(
-            final @Nonnull CorrodedFactory corrodedFactory) {
-        return new ScheduledCorrodedPoolExecutor(1, corrodedFactory);
+    public static ScheduledExecutorService newSingleCorrodedScheduledExecutor(final @Nonnull CorrodedFactory factory) {
+        return new ScheduledCorrodedPoolExecutor(NumberUtils.INTEGER_ONE, factory);
     }
 
-    public static ExecutorService newScheduledCorrodedPool(final int size,
-                                                           final @Nonnull CorrodedFactory corrodedFactory) {
-        return new ScheduledCorrodedPoolExecutor(size, corrodedFactory);
+    public static ExecutorService newScheduledCorrodedPool(final int size, final @Nonnull CorrodedFactory factory) {
+        return new ScheduledCorrodedPoolExecutor(size, factory);
     }
 
-    public ScheduledCorrodedPoolExecutor(int poolSize,
-                                         final @Nonnull CorrodedFactory corrodedFactory) {
-        super(poolSize, corrodedFactory);
+    public ScheduledCorrodedPoolExecutor(int size, final @Nonnull CorrodedFactory factory) {
+        super(size, factory);
     }
 }
