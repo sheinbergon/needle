@@ -7,14 +7,6 @@ import javax.annotation.Nullable;
 
 public final class FixedAffinityCorrodedFactory implements CorrodedFactory {
 
-
-    /* No args constructor build corroded thread without an affinity mask
-     * You can also set one after the thread has started it's execution
-     */
-    public FixedAffinityCorrodedFactory() {
-        this(null, null);
-    }
-
     public FixedAffinityCorrodedFactory(final @Nonnull Long mask) {
         this(null, mask);
     }

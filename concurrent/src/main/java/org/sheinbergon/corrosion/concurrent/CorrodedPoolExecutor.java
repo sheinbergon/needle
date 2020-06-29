@@ -36,17 +36,6 @@ public class CorrodedPoolExecutor extends ThreadPoolExecutor implements Closeabl
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory);
     }
 
-    public CorrodedPoolExecutor(
-            final int corePoolSize,
-            final int maximumPoolSize,
-            final long keepAliveTime,
-            final @Nonnull TimeUnit unit,
-            final @Nonnull BlockingQueue<Runnable> workQueue,
-            final @Nonnull CorrodedFactory factory,
-            final @Nonnull RejectedExecutionHandler handler) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory, handler);
-    }
-
     @Override
     public void close() {
         shutdown();
