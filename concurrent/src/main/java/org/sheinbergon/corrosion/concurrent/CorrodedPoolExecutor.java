@@ -3,9 +3,10 @@ package org.sheinbergon.corrosion.concurrent;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.annotation.Nonnull;
+import java.io.Closeable;
 import java.util.concurrent.*;
 
-public class CorrodedPoolExecutor extends ThreadPoolExecutor {
+public class CorrodedPoolExecutor extends ThreadPoolExecutor implements Closeable {
 
     public static ExecutorService newSingleCorrodedExecutor(final @Nonnull CorrodedFactory factory) {
         return new CorrodedPoolExecutor(NumberUtils.INTEGER_ONE,
@@ -44,5 +45,10 @@ public class CorrodedPoolExecutor extends ThreadPoolExecutor {
             final @Nonnull CorrodedFactory factory,
             final @Nonnull RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory, handler);
+    }
+
+    @Override
+    public void close() {
+        shutdown();
     }
 }

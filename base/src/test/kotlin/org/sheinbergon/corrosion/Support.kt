@@ -13,13 +13,17 @@ const val `1` = 1
 const val `0` = 0
 const val `-1` = -1
 
+val availableCores = CoreSet.AVAILABLE_CORES
+
+val maskUpperBound = CoreSet.MASK_UPPER_BOUND
+
 val binaryTestMask by lazy {
-    if (CoreSet.AVAILABLE_CORES > `1`) CoreSet.MASK_UPPER_BOUND - `2L`
+    if (availableCores > `1`) maskUpperBound - `2L`
     else `1L`
 }
 
 val negatedTestMask by lazy {
-    binaryTestMask.xor(CoreSet.MASK_UPPER_BOUND - `1L`)
+    binaryTestMask.xor(maskUpperBound - `1L`)
 }
 
 val textTestMask by lazy {
@@ -35,12 +39,12 @@ private val binaryTestMaskRanges: List<IntRange> by lazy {
     var start = `-1`
     var binaryMask = binaryTestMask
     mutableListOf<IntRange>().apply {
-        for (index in `0` until CoreSet.AVAILABLE_CORES) {
+        for (index in `0` until availableCores) {
             if (binaryMask.and(`1L`) == `1L`) {
                 if (start == `-1`) {
                     start = index
                 }
-                if (index + `1` == CoreSet.AVAILABLE_CORES) {
+                if (index + `1` == availableCores) {
                     add(start..index)
                 }
             } else if (start != `-1`) {

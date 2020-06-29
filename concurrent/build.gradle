@@ -5,4 +5,6 @@ plugins {
 
 dependencies {
     api project(':corrosion-base')
+    testImplementation project(':corrosion-base').sourceSets.test.output
+
 }
