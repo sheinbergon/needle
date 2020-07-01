@@ -8,9 +8,9 @@ jobs:
   ci:
     name: run tests, style verification and measure code coverage
     runs-on: ${{ matrix.os }}
-      strategy:
-        matrix:
-          os: [ubuntu-20.04, windows-2019]
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019]
 
     steps:
 
