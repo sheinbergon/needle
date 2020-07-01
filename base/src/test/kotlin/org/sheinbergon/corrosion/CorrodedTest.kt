@@ -3,18 +3,26 @@ package org.sheinbergon.corrosion
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.apache.commons.lang3.math.NumberUtils
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.sheinbergon.corrosion.util.CorrosionException
 import java.util.concurrent.CountDownLatch
 
 class CorrodedTest {
 
-    private val default = Corrosion.get()
     private lateinit var latch: CountDownLatch
 
     @BeforeEach
     fun setup() {
         latch = CountDownLatch(1)
+    }
+
+    @Test
+    fun `Access a corroded affinity information without starting it`() {
+        val runnable = unlatchAndSleepRunnable()
+        val corroded = Corroded(runnable)
+        Assertions.assertThrows(CorrosionException::class.java) { corroded.affinity() }
     }
 
     @Test
@@ -137,7 +145,7 @@ class CorrodedTest {
     }
 
     private fun unlatchAndSleepRunnable(setup: Boolean = false) = Runnable {
-        if (setup) (Thread.currentThread() as? Corroded)?.setup()
+        if (setup) (Thread.currentThread() as? Corroded)?.initialize()
         latch.countDown()
         runCatching { Thread.sleep(1000L) }
     }

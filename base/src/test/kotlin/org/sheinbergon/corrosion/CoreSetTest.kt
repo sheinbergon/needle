@@ -39,7 +39,7 @@ class CoreSetTest {
     @Test
     fun `Core set equality`() {
         val cs1 = CoreSet.from(textTestMask)
-        val cs2 = CoreSet.from(negatedTestMask)
+        val cs2 = CoreSet.from(negatedBinaryTestMask)
         val cs3 = CoreSet.from(textTestMask)
         cs1 shouldNotBeEqualTo null
         cs1 shouldNotBeEqualTo cs2
@@ -51,9 +51,9 @@ class CoreSetTest {
     @Test
     fun `Core set hashCode`() {
         val cs1 = CoreSet.from(textTestMask)
-        val cs2 = CoreSet.from(negatedTestMask)
+        val cs2 = CoreSet.from(negatedBinaryTestMask)
         cs1.hashCode() shouldBeEqualTo Objects.hashCode(binaryTestMask)
-        cs2.hashCode() shouldBeEqualTo Objects.hashCode(negatedTestMask)
+        cs2.hashCode() shouldBeEqualTo Objects.hashCode(negatedBinaryTestMask)
         cs1.hashCode() shouldNotBeEqualTo cs2.hashCode()
     }
 }

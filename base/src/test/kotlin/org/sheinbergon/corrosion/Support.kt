@@ -7,8 +7,9 @@ import org.sheinbergon.corrosion.jna.win32.Win32AffinityResolver
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
-const val `1L` = 1L
 const val `2L` = 2L
+const val `1L` = 1L
+const val `2` = 2
 const val `1` = 1
 const val `0` = 0
 const val `-1` = -1
@@ -17,28 +18,36 @@ val availableCores = CoreSet.AVAILABLE_CORES
 
 val maskUpperBound = CoreSet.MASK_UPPER_BOUND
 
+val default = Corrosion.get()
+
 val binaryTestMask by lazy {
     if (availableCores > `1`) maskUpperBound - `2L`
     else `1L`
 }
 
-val negatedTestMask by lazy {
+val negatedBinaryTestMask by lazy {
     binaryTestMask.xor(maskUpperBound - `1L`)
 }
 
 val textTestMask by lazy {
-    binaryTestMaskRanges.map {
-        with(it) {
-            if (first == last) "$start"
-            else "$first${CoreSet.RANGE_DELIMITER}$last"
-        }
-    }.joinToString(separator = CoreSet.SPECIFICATION_DELIMITER)
+    binaryMaskRanges(binaryTestMask).textMask()
 }
 
-private val binaryTestMaskRanges: List<IntRange> by lazy {
+val negatedTextTestMask by lazy {
+    binaryMaskRanges(negatedBinaryTestMask).textMask()
+}
+
+private fun List<IntRange>.textMask() = this.map {
+    with(it) {
+        if (first == last) "$start"
+        else "$first${CoreSet.RANGE_DELIMITER}$last"
+    }
+}.joinToString(separator = CoreSet.SPECIFICATION_DELIMITER)
+
+private fun binaryMaskRanges(mask: Long): List<IntRange> {
     var start = `-1`
-    var binaryMask = binaryTestMask
-    mutableListOf<IntRange>().apply {
+    var binaryMask = mask
+    return mutableListOf<IntRange>().apply {
         for (index in `0` until availableCores) {
             if (binaryMask.and(`1L`) == `1L`) {
                 if (start == `-1`) {

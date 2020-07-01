@@ -9,7 +9,11 @@ public final class ResettableOneOffLatch {
     private volatile CountDownLatch latch;
 
     public ResettableOneOffLatch() {
-        latch = new CountDownLatch(NumberUtils.INTEGER_ONE);
+        this(false);
+    }
+
+    public ResettableOneOffLatch(final boolean latched) {
+        latch = new CountDownLatch(latched ? NumberUtils.INTEGER_ONE : NumberUtils.INTEGER_ZERO);
     }
 
     public void reset() {

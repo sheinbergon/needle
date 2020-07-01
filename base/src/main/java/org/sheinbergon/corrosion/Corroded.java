@@ -2,6 +2,7 @@ package org.sheinbergon.corrosion;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.sheinbergon.corrosion.util.CorrosionException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,18 +47,21 @@ public class Corroded extends Thread {
     }
 
     public final CoreSet affinity() {
+        ensureInitialization();
         return Corrosion.get(this);
     }
 
     public final void affinity(final @Nonnull String mask) {
+        ensureInitialization();
         Corrosion.set(mask, this);
     }
 
     public final void affinity(final long mask) {
+        ensureInitialization();
         Corrosion.set(mask, this);
     }
 
-    protected final void setup() {
+    protected final void initialize() {
         nativeId = Corrosion.self();
         Objects.requireNonNull(nativeId);
         if (initializer != null) initializer.invoke();
@@ -65,7 +69,13 @@ public class Corroded extends Thread {
 
     @Override
     public void run() {
-        setup();
+        initialize();
         super.run();
+    }
+
+    private void ensureInitialization() {
+        if (nativeId == null) {
+            throw new CorrosionException("Corroded uninitialized, cannot access affinity information");
+        }
     }
 }

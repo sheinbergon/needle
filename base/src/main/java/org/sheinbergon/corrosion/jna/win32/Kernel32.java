@@ -8,8 +8,12 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.win32.W32APIOptions;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.val;
 
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Kernel32 {
 
     private final static String LIBRARY = "kernel32";

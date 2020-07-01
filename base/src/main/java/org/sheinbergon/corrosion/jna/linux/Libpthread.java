@@ -2,8 +2,11 @@ package org.sheinbergon.corrosion.jna.linux;
 
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.sheinbergon.corrosion.jna.linux.structure.CpuSet;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Libpthread {
 
     private final static String LIBRARY = "pthread";

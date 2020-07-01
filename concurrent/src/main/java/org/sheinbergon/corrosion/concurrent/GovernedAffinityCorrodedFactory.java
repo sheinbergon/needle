@@ -8,6 +8,7 @@ import org.sheinbergon.corrosion.concurrent.util.ResettableOneOffLatch;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -50,6 +51,13 @@ public final class GovernedAffinityCorrodedFactory implements CorrodedFactory {
 
     @Nonnull
     private final ResettableOneOffLatch startupLatch = new ResettableOneOffLatch();
+
+    public int goverened() {
+        startupLatch.await(false);
+        val size = new AtomicInteger();
+        safe(instances -> size.set(instances.size()));
+        return size.get();
+    }
 
     public void alter(
             final @Nonnull String textMask,
