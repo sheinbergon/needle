@@ -11,7 +11,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-2019]
-
+    env:
+      OS: ${{ matrix.os }}
     steps:
 
       - name: Git checkout
@@ -25,3 +26,9 @@ jobs:
 
       - name: Run tests via gradle
         run: ./gradlew clean test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          env_vars: OS
+          fail_ci_if_error: true
