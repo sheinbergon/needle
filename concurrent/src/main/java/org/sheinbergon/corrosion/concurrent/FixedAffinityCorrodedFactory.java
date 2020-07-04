@@ -7,6 +7,11 @@ import javax.annotation.Nullable;
 
 public final class FixedAffinityCorrodedFactory implements CorrodedFactory {
 
+    @Nullable
+    private final Long binaryMask;
+    @Nullable
+    private final String textMask;
+
     public FixedAffinityCorrodedFactory(final @Nonnull Long mask) {
         this(null, mask);
     }
@@ -20,12 +25,6 @@ public final class FixedAffinityCorrodedFactory implements CorrodedFactory {
         this.textMask = textMask;
         this.binaryMask = binaryMask;
     }
-
-    @Nullable
-    private final Long binaryMask;
-
-    @Nullable
-    private final String textMask;
 
     @Override
     public final Corroded newThread(final @Nonnull Runnable r) {

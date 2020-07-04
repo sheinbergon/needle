@@ -1,7 +1,6 @@
 package org.sheinbergon.corrosion
 
 import com.sun.jna.Platform
-import org.sheinbergon.corrosion.Corrosion.AffinityResolver
 import org.sheinbergon.corrosion.jna.linux.LinuxAffinityResolver
 import org.sheinbergon.corrosion.jna.win32.Win32AffinityResolver
 import java.lang.reflect.Field

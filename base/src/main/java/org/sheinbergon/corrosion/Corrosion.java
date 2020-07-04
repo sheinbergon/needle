@@ -1,12 +1,8 @@
 package org.sheinbergon.corrosion;
 
-import com.sun.jna.Platform;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.sheinbergon.corrosion.jna.linux.LinuxAffinityResolver;
-import org.sheinbergon.corrosion.jna.win32.Win32AffinityResolver;
 
 import javax.annotation.Nonnull;
 
@@ -14,92 +10,34 @@ import javax.annotation.Nonnull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Corrosion {
 
-    private static final AffinityResolver affinityResolver;
-
-    static {
-        if (Platform.isWindows()) {
-            affinityResolver = Win32AffinityResolver.INSTANCE;
-        } else if (Platform.isLinux()) {
-            affinityResolver = LinuxAffinityResolver.INSTANCE;
-        } else {
-            affinityResolver = AffinityResolver.NoOp.INSTANCE;
-        }
-    }
-
-    public interface AffinityResolver<I> {
-
-        @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        final class NoOp implements AffinityResolver<Object> {
-
-            public static AffinityResolver<?> INSTANCE = new NoOp();
-
-            @Nonnull
-            @Override
-            public Object self() {
-                return NumberUtils.LONG_MINUS_ONE;
-            }
-
-            @Override
-            public void set(@Nonnull CoreSet cores) {
-            }
-
-            @Override
-            public void set(@Nonnull CoreSet cores, @Nonnull Object identifier) {
-            }
-
-            @Nonnull
-            @Override
-            public CoreSet get() {
-                return CoreSet.UNSUPPORTED;
-            }
-
-            @Nonnull
-            @Override
-            public CoreSet get(@Nonnull Object identifier) {
-                return CoreSet.UNSUPPORTED;
-            }
-        }
-
-        @Nonnull
-        I self();
-
-        void set(@Nonnull CoreSet cores);
-
-        void set(@Nonnull CoreSet cores, @Nonnull I identifier);
-
-        @Nonnull
-        CoreSet get();
-
-        @Nonnull
-        CoreSet get(@Nonnull I identifier);
-    }
+    private static final AffinityResolver affinityResolver = AffinityResolver.instance;
 
     public static void set(final long mask) {
         val cores = CoreSet.from(mask);
-        affinityResolver.set(cores);
+        affinityResolver.thread(cores);
     }
 
     public static void set(final @Nonnull String mask) {
         val cores = CoreSet.from(mask);
-        affinityResolver.set(cores);
+        affinityResolver.thread(cores);
     }
 
     public static CoreSet get() {
-        return affinityResolver.get();
+        return affinityResolver.thread();
     }
 
     static void set(final long mask, final @Nonnull Corroded corroded) {
         val cores = CoreSet.from(mask);
-        affinityResolver.set(cores, corroded.nativeId());
+        affinityResolver.thread(corroded.nativeId(), cores);
     }
 
     static void set(final @Nonnull String mask, final @Nonnull Corroded corroded) {
         val cores = CoreSet.from(mask);
-        affinityResolver.set(cores, corroded.nativeId());
+        affinityResolver.thread(corroded.nativeId(), cores);
     }
 
     static CoreSet get(final @Nonnull Corroded corroded) {
-        return affinityResolver.get(corroded.nativeId());
+        return affinityResolver.thread(corroded.nativeId());
     }
 
     static Object self() {

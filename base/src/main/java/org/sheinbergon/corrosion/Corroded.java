@@ -11,14 +11,8 @@ import java.util.Objects;
 @Accessors(fluent = true)
 public class Corroded extends Thread {
 
-    @FunctionalInterface
-    private interface Initializer {
-        void invoke();
-    }
-
     @Getter
     private volatile Object nativeId = null;
-
     @Nullable
     private Initializer initializer = null;
 
@@ -77,5 +71,10 @@ public class Corroded extends Thread {
         if (nativeId == null) {
             throw new CorrosionException("Corroded uninitialized, cannot access affinity information");
         }
+    }
+
+    @FunctionalInterface
+    private interface Initializer {
+        void invoke();
     }
 }

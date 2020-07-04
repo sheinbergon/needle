@@ -8,6 +8,16 @@ import java.util.concurrent.*;
 
 public class CorrodedPoolExecutor extends ThreadPoolExecutor implements Closeable {
 
+    public CorrodedPoolExecutor(
+            final int corePoolSize,
+            final int maximumPoolSize,
+            final long keepAliveTime,
+            final @Nonnull TimeUnit unit,
+            final @Nonnull BlockingQueue<Runnable> workQueue,
+            final @Nonnull CorrodedFactory factory) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory);
+    }
+
     public static ExecutorService newSingleCorrodedExecutor(final @Nonnull CorrodedFactory factory) {
         return new CorrodedPoolExecutor(NumberUtils.INTEGER_ONE,
                 NumberUtils.INTEGER_ONE,
@@ -24,16 +34,6 @@ public class CorrodedPoolExecutor extends ThreadPoolExecutor implements Closeabl
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(),
                 factory);
-    }
-
-    public CorrodedPoolExecutor(
-            final int corePoolSize,
-            final int maximumPoolSize,
-            final long keepAliveTime,
-            final @Nonnull TimeUnit unit,
-            final @Nonnull BlockingQueue<Runnable> workQueue,
-            final @Nonnull CorrodedFactory factory) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, factory);
     }
 
     @Override

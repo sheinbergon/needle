@@ -45,8 +45,8 @@ class CoreSetTest {
 
     @Test
     fun `Empty mask core set instantiation`() {
-        CoreSet.from(StringUtils.EMPTY) shouldBe CoreSet.ALL
-        CoreSet.from(NumberUtils.LONG_ZERO) shouldBe CoreSet.ALL
+        CoreSet.from(StringUtils.EMPTY) shouldBeEqualTo CoreSet.process()
+        CoreSet.from(NumberUtils.LONG_ZERO) shouldBeEqualTo CoreSet.process()
     }
 
     @Test

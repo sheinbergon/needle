@@ -6,15 +6,14 @@ import java.util.List;
 
 public class CpuSet extends Structure {
 
+    private final static int CPU_SETSIZE = 1024;
+    private final static int NCPUBITS = Long.SIZE;
+    public long[] __bits = new long[CPU_SETSIZE / NCPUBITS];
+
     public CpuSet() {
         setAlignType(ALIGN_NONE);
         setAutoSynch(true);
     }
-
-    private final static int CPU_SETSIZE = 1024;
-    private final static int NCPUBITS = Long.SIZE;
-
-    public long[] __bits = new long[CPU_SETSIZE / NCPUBITS];
 
     @Override
     protected List<String> getFieldOrder() {

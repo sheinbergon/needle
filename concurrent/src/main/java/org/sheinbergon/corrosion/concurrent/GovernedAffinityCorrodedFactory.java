@@ -16,6 +16,17 @@ import java.util.function.Consumer;
 public final class GovernedAffinityCorrodedFactory implements CorrodedFactory {
 
 
+    @Nonnull
+    private final Set<Corroded> instances = Sets.newHashSet();
+    @Nonnull
+    private final Lock instancesLock = new ReentrantLock();
+    @Nonnull
+    private final ResettableOneOffLatch startupLatch = new ResettableOneOffLatch();
+    @Nullable
+    private volatile Long binaryMask;
+    @Nullable
+    private volatile String textMask;
+
     /* No args constructor build corroded thread without an affinity mask
      * You can also set one after the thread has started it's execution
      */
@@ -36,21 +47,6 @@ public final class GovernedAffinityCorrodedFactory implements CorrodedFactory {
         this.textMask = textMask;
         this.binaryMask = binaryMask;
     }
-
-    @Nullable
-    private volatile Long binaryMask;
-
-    @Nullable
-    private volatile String textMask;
-
-    @Nonnull
-    private final Set<Corroded> instances = Sets.newHashSet();
-
-    @Nonnull
-    private final Lock instancesLock = new ReentrantLock();
-
-    @Nonnull
-    private final ResettableOneOffLatch startupLatch = new ResettableOneOffLatch();
 
     public int goverened() {
         startupLatch.await(false);

@@ -7,15 +7,15 @@ import com.sun.jna.ptr.LongByReference;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
+import org.sheinbergon.corrosion.AffinityResolver;
 import org.sheinbergon.corrosion.CoreSet;
-import org.sheinbergon.corrosion.Corrosion;
 
 import javax.annotation.Nonnull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Win32AffinityResolver implements Corrosion.AffinityResolver<WinNT.HANDLE> {
+public final class Win32AffinityResolver extends AffinityResolver<WinNT.HANDLE> {
 
-    public static final Corrosion.AffinityResolver<?> INSTANCE = new Win32AffinityResolver();
+    public static final AffinityResolver<?> INSTANCE = new Win32AffinityResolver();
 
     private static final WinDef.BOOL TRUE = new WinDef.BOOL(true);
     private static final WinDef.DWORD ALL_ACCESS = new WinDef.DWORD(WinNT.THREAD_ALL_ACCESS);
@@ -36,27 +36,23 @@ public class Win32AffinityResolver implements Corrosion.AffinityResolver<WinNT.H
     }
 
     @Override
-    public synchronized void set(final @Nonnull CoreSet cores) {
-        set(cores, self());
-    }
-
-    @Override
-    public synchronized void set(final @Nonnull CoreSet cores, final @Nonnull WinNT.HANDLE handle) {
+    public synchronized void thread(final @Nonnull WinNT.HANDLE handle, final @Nonnull CoreSet cores) {
         val mask = cores.mask();
         val pointer = new BaseTSD.DWORD_PTR(mask);
         Kernel32.SetThreadAffinityMask(handle, pointer);
     }
 
     @Nonnull
-    public synchronized CoreSet get() {
-        return get(self());
+    @Override
+    public synchronized CoreSet thread(final @Nonnull WinNT.HANDLE handle) {
+        val current = Kernel32.SetThreadAffinityMask(handle, processAffinity());
+        Kernel32.SetThreadAffinityMask(handle, current);
+        return CoreSet.from(current.longValue());
     }
 
     @Nonnull
     @Override
-    public synchronized CoreSet get(final @Nonnull WinNT.HANDLE handle) {
-        val current = Kernel32.SetThreadAffinityMask(handle, processAffinity());
-        Kernel32.SetThreadAffinityMask(handle, current);
-        return CoreSet.from(current.longValue());
+    protected CoreSet process() {
+        return CoreSet.from(processAffinity().longValue());
     }
 }
