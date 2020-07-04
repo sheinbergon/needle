@@ -127,9 +127,9 @@ class CorrodedTest {
                 corroded.start()
                 latch.await()
                 corroded.nativeId() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
-                corroded.affinity() shouldBeEqualTo CoreSet.EMPTY
+                corroded.affinity() shouldBeEqualTo CoreSet.UNSUPPORTED
                 corroded.affinity(desiredTextMask)
-                corroded.affinity() shouldBeEqualTo CoreSet.EMPTY
+                corroded.affinity() shouldBeEqualTo CoreSet.UNSUPPORTED
             } finally {
                 corroded.interrupt()
             }

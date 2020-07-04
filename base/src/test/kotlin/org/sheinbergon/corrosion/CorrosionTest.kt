@@ -35,9 +35,9 @@ class CorrosionTest {
     @Test
     fun `Unsupported platform behavior - Thread access`() {
         unsupportedPlatform {
-            Corrosion.get() shouldBe CoreSet.EMPTY
+            Corrosion.get() shouldBe CoreSet.UNSUPPORTED
             Corrosion.set(NumberUtils.LONG_ONE)
-            Corrosion.get() shouldBe CoreSet.EMPTY
+            Corrosion.get() shouldBe CoreSet.UNSUPPORTED
             Corrosion.self() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
         }
     }

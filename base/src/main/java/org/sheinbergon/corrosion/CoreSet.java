@@ -10,6 +10,7 @@ import org.sheinbergon.corrosion.util.CoreSetException;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -24,10 +25,12 @@ public class CoreSet {
 
     static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
     static final int MASK_UPPER_BOUND = (int) Math.pow(2, AVAILABLE_CORES);
+    static final int ALL_CORES = MASK_UPPER_BOUND - 1;
+
     static final String SPECIFICATION_DELIMITER = ",";
     static final String RANGE_DELIMITER = "-";
 
-    public static CoreSet EMPTY = new CoreSet() {
+    static final CoreSet UNSUPPORTED = new CoreSet() {
         @Override
         public long mask() {
             return NumberUtils.LONG_MINUS_ONE;
@@ -35,13 +38,14 @@ public class CoreSet {
 
         @Override
         public String toString() {
-            return Long.toString(mask());
+            return null;
         }
     };
 
+    static final CoreSet ALL = CoreSet.from(ALL_CORES);
+
     public static CoreSet from(final long mask) {
         val specifications = new HashSet<Specification>();
-        validate(mask);
         Integer start = null, end = null;
         for (var core = 0; core < Long.SIZE; core++) {
             if (((1L << core) & mask) > 0) {
@@ -55,16 +59,25 @@ public class CoreSet {
                 }
             }
         }
-        return new CoreSet(specifications);
+        return from(specifications);
     }
 
     public static CoreSet from(final @Nonnull String mask) {
         val specifications = Arrays.stream(StringUtils.split(mask, SPECIFICATION_DELIMITER))
+                .filter(Predicate.not(String::isBlank))
                 .map(CoreSet::specificationFrom)
                 .collect(Collectors.toSet());
-        val cores = new CoreSet(specifications);
-        validate(cores.mask());
-        return cores;
+        return from(specifications);
+    }
+
+    private static CoreSet from(final @Nonnull Set<Specification> specifications) {
+        if (specifications.isEmpty()) {
+            return ALL;
+        } else {
+            val cores = new CoreSet(specifications);
+            validate(cores.mask());
+            return cores;
+        }
     }
 
     private static Specification specificationFrom(final @Nonnull String specification) {
@@ -99,7 +112,6 @@ public class CoreSet {
     @Getter(lazy = true)
     private final long mask = computeMask();
 
-
     @Override
     public int hashCode() {
         return Objects.hashCode(mask());
@@ -122,7 +134,7 @@ public class CoreSet {
         return Optional.ofNullable(specifications).map(Set::stream)
                 .map(stream -> stream.map(Specification::mask))
                 .flatMap(stream -> stream.reduce((m1, m2) -> m1 | m2))
-                .orElseThrow(() -> new IllegalArgumentException("Empty core set"));
+                .orElse(NumberUtils.LONG_ZERO);
     }
 
     private interface Specification {

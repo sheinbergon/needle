@@ -1,8 +1,10 @@
 package org.sheinbergon.corrosion
 
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldThrow
+import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.jupiter.api.Test
 import org.sheinbergon.corrosion.util.CoreSetException
@@ -26,14 +28,25 @@ class CoreSetTest {
     }
 
     @Test
+    fun `Illegal core-set specification - out of bounds mask`() {
+        { CoreSet.from(CoreSet.MASK_UPPER_BOUND + `1L`) } shouldThrow CoreSetException::class
+    }
+
+    @Test
     fun `Illegal core-set specification - rubbish`() {
         { CoreSet.from("oxidise") } shouldThrow CoreSetException::class
     }
 
     @Test
-    fun `Empty core set behavior`() {
-        CoreSet.EMPTY.mask() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
-        CoreSet.EMPTY.toString() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE.toString()
+    fun `Unsupported core set traits`() {
+        CoreSet.UNSUPPORTED.mask() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
+        CoreSet.UNSUPPORTED.toString() shouldBe null
+    }
+
+    @Test
+    fun `Empty mask core set instantiation`() {
+        CoreSet.from(StringUtils.EMPTY) shouldBe CoreSet.ALL
+        CoreSet.from(NumberUtils.LONG_ZERO) shouldBe CoreSet.ALL
     }
 
     @Test

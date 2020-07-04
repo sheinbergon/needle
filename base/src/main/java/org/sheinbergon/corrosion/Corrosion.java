@@ -50,13 +50,13 @@ public class Corrosion {
             @Nonnull
             @Override
             public CoreSet get() {
-                return CoreSet.EMPTY;
+                return CoreSet.UNSUPPORTED;
             }
 
             @Nonnull
             @Override
             public CoreSet get(@Nonnull Object identifier) {
-                return CoreSet.EMPTY;
+                return CoreSet.UNSUPPORTED;
             }
         }
 
