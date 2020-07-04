@@ -36,9 +36,6 @@ subprojects {
         testImplementation "org.jetbrains.kotlinx:atomicfu:0.14.3"
         testImplementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-        testImplementation 'org.mockito:mockito-core:3.3.3'
-        testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
-
         testImplementation 'org.junit.platform:junit-platform-runner:1.6.2'
         testImplementation "org.junit.jupiter:junit-jupiter:5.6.2"
         testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.2'

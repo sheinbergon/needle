@@ -1,5 +1,4 @@
-include 'base'
-findProject(':base')?.name = 'corrosion-base'
+include 'core'
+findProject(':core')?.name = 'needle-core'
 include 'concurrent'
-findProject(':concurrent')?.name = 'corrosion-concurrent'
-
+findProject(':concurrent')?.name = 'needle-concurrent'

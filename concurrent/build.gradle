@@ -4,7 +4,6 @@ plugins {
 }
 
 dependencies {
-    api project(':corrosion-base')
-    testImplementation project(':corrosion-base').sourceSets.test.output
-
+    api project(':needle-core')
+    testImplementation project(':needle-core').sourceSets.test.output
 }
