@@ -12,16 +12,16 @@ class ScheduledPinnedThreadPoolExecutorTest {
     @Test
     fun `Single pinned thread scheduled executor`() {
         val scheduler = ScheduledPinnedThreadPoolExecutor.newSinglePinnedScheduledExecutor(TestMaskPinnedThreadFactory)
-        testCorrodedExecutor(`1`, scheduler as ScheduledPinnedThreadPoolExecutor)
+        testPinnedThreadExecutor(`1`, scheduler as ScheduledPinnedThreadPoolExecutor)
     }
 
     @Test
     fun `Pooled pinned thread scheduled executor`() {
         val scheduler = ScheduledPinnedThreadPoolExecutor.newScheduledPinnedPool(availableCores, TestMaskPinnedThreadFactory)
-        testCorrodedExecutor(availableCores, scheduler as ScheduledPinnedThreadPoolExecutor)
+        testPinnedThreadExecutor(availableCores, scheduler as ScheduledPinnedThreadPoolExecutor)
     }
 
-    private fun testCorrodedExecutor(
+    private fun testPinnedThreadExecutor(
             concurrency: Int,
             scheduler: ScheduledPinnedThreadPoolExecutor
     ) = scheduler.use {

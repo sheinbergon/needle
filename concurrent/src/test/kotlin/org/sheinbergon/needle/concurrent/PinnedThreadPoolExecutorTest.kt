@@ -12,16 +12,16 @@ class PinnedThreadPoolExecutorTest {
     @Test
     fun `Single pinnned thread executor`() {
         val executor = PinnedThreadPoolExecutor.newSinglePinnedExecutor(TestMaskPinnedThreadFactory)
-        testCorrodedExecutor(`1`, executor as PinnedThreadPoolExecutor)
+        testPinnedThreadExecutor(`1`, executor as PinnedThreadPoolExecutor)
     }
 
     @Test
     fun `Fixed pinned thread pool executor`() {
         val executor = PinnedThreadPoolExecutor.newFixedPinnedPool(availableCores, TestMaskPinnedThreadFactory)
-        testCorrodedExecutor(availableCores, executor as PinnedThreadPoolExecutor)
+        testPinnedThreadExecutor(availableCores, executor as PinnedThreadPoolExecutor)
     }
 
-    private fun testCorrodedExecutor(
+    private fun testPinnedThreadExecutor(
             concurrency: Int,
             pool: PinnedThreadPoolExecutor
     ) = pool.use {

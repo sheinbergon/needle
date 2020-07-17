@@ -27,11 +27,11 @@ public abstract class AffinityResolver<I> {
     @Nonnull
     protected abstract I self();
 
-    final void thread(@Nonnull AffinityDescriptor cores) {
-        thread(self(), cores);
+    final void thread(@Nonnull AffinityDescriptor affinity) {
+        thread(self(), affinity);
     }
 
-    protected abstract void thread(@Nonnull I identifier, @Nonnull AffinityDescriptor cores);
+    protected abstract void thread(@Nonnull I identifier, @Nonnull AffinityDescriptor affinity);
 
     @Nonnull
     final AffinityDescriptor thread() {
@@ -62,7 +62,7 @@ public abstract class AffinityResolver<I> {
         }
 
         @Override
-        protected void thread(@Nonnull Object identifier, @Nonnull AffinityDescriptor cores) {
+        protected void thread(@Nonnull Object identifier, @Nonnull AffinityDescriptor affinity) {
         }
 
         @Nonnull

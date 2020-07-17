@@ -19,128 +19,129 @@ class PinnedThreadTest {
     }
 
     @Test
-    fun `Access a corroded affinity information without starting it`() {
+    fun `Access a PinnedThread affinity information without starting it`() {
         val runnable = unlatchAndSleepRunnable()
-        val corroded = PinnedThread(runnable)
-        Assertions.assertThrows(NeedleException::class.java) { corroded.affinity() }
+        val pinned = PinnedThread(runnable)
+        Assertions.assertThrows(NeedleException::class.java) { pinned.affinity() }
     }
 
     @Test
-    fun `Start a Corroded without an affinity mask`() {
+    fun `Start a PinnedThread without an affinity descriptor`() {
         val runnable = unlatchAndSleepRunnable()
-        val corroded = PinnedThread(runnable)
+        val pinned = PinnedThread(runnable)
         try {
-            corroded.start()
+            pinned.start()
             latch.await()
-            corroded.affinity() shouldBeEqualTo default
+            pinned.affinity() shouldBeEqualTo default
         } finally {
-            corroded.interrupt()
+            pinned.interrupt()
         }
     }
 
     @Test
-    fun `Start a Corroded with a binary mask`() {
-        val desired: Long = binaryTestMask
+    fun `Start a named PinnedThread without an affinity descriptor`() {
         val runnable = unlatchAndSleepRunnable()
-        val corroded = PinnedThread(runnable, desired)
+        val pinned = PinnedThread(runnable, NEEDLE)
         try {
-            corroded.start()
+            pinned.start()
+            pinned.name shouldBeEqualTo NEEDLE
             latch.await()
-            corroded.affinity().mask() shouldBeEqualTo desired
+            pinned.affinity() shouldBeEqualTo default
         } finally {
-            corroded.interrupt()
+            pinned.interrupt()
         }
     }
 
     @Test
-    fun `Start a Corroded with a text mask`() {
-        val desired = textTestMask
+    fun `Start a PinnedThread with an affinity descriptor set`() {
+        val desiredMask = textTestMask
+        val desiredAffinityDescriptor = testAffinityDescriptor
         val runnable = unlatchAndSleepRunnable()
-        val corroded = PinnedThread(runnable, desired)
+        val pinned = PinnedThread(runnable, desiredAffinityDescriptor)
         try {
-            corroded.start()
+            pinned.start()
             latch.await()
-            corroded.affinity().toString() shouldBeEqualTo desired
+            pinned.affinity().toString() shouldBeEqualTo desiredMask
         } finally {
-            corroded.interrupt()
+            pinned.interrupt()
         }
     }
 
     @Test
-    fun `Change the affinity of a Corroded using a text mask during runtime`() {
+    fun `Start a named PinnedThread with an affinity descriptor set`() {
+        val desiredMask = textTestMask
+        val desiredAffinityDescriptor = testAffinityDescriptor
+        val runnable = unlatchAndSleepRunnable()
+        val pinned = PinnedThread(runnable, NEEDLE, desiredAffinityDescriptor)
+        try {
+            pinned.start()
+            pinned.name shouldBeEqualTo NEEDLE
+            latch.await()
+            pinned.affinity().toString() shouldBeEqualTo desiredMask
+        } finally {
+            pinned.interrupt()
+        }
+    }
+
+    @Test
+    fun `Change the affinity of a PinnedThread during runtime`() {
         val desiredTextMask = textTestMask
         val desiredBinaryMask = binaryTestMask
+        val desiredAffinityDescriptor = testAffinityDescriptor
         val runnable = unlatchAndSleepRunnable()
-        val corroded = PinnedThread(runnable)
+        val pinned = PinnedThread(runnable)
         try {
-            corroded.start()
+            pinned.start()
             latch.await()
-            corroded.affinity() shouldBeEqualTo default
-            corroded.affinity(desiredTextMask)
-            corroded.affinity() shouldNotBeEqualTo default
-            corroded.affinity().mask() shouldBeEqualTo desiredBinaryMask
-            corroded.affinity().toString() shouldBeEqualTo desiredTextMask
+            pinned.affinity() shouldBeEqualTo default
+            pinned.affinity(desiredAffinityDescriptor)
+            pinned.affinity() shouldNotBeEqualTo default
+            pinned.affinity().mask() shouldBeEqualTo desiredBinaryMask
+            pinned.affinity().toString() shouldBeEqualTo desiredTextMask
         } finally {
-            corroded.interrupt()
+            pinned.interrupt()
         }
     }
 
     @Test
-    fun `Extend a corroded using a text mask`() {
+    fun `Extend a PinnedThread`() {
         val desiredTextMask = textTestMask
         val desiredBinaryMask = binaryTestMask
+        val desiredAffinityDescriptor = testAffinityDescriptor
         val runnable = unlatchAndSleepRunnable(true)
-        val corroded = ExtendedPinnedThreadTextMask(desiredTextMask, runnable)
+        val pinned = ExtendedPinnedThread(desiredAffinityDescriptor, runnable)
         try {
-            corroded.start()
+            pinned.start()
             latch.await()
-            corroded.affinity().mask() shouldBeEqualTo desiredBinaryMask
-            corroded.affinity().toString() shouldBeEqualTo desiredTextMask
+            pinned.affinity().mask() shouldBeEqualTo desiredBinaryMask
+            pinned.affinity().toString() shouldBeEqualTo desiredTextMask
         } finally {
-            corroded.interrupt()
+            pinned.interrupt()
         }
     }
 
     @Test
-    fun `Extend a corroded using binary mask`() {
-        val desiredTextMask = textTestMask
-        val desiredBinaryMask: Long = binaryTestMask
-        val runnable = unlatchAndSleepRunnable(true)
-        val corroded = ExtendedPinnedThreadBinaryMask(desiredBinaryMask, runnable)
-        try {
-            corroded.start()
-            latch.await()
-            corroded.affinity().mask() shouldBeEqualTo desiredBinaryMask
-            corroded.affinity().toString() shouldBeEqualTo desiredTextMask
-        } finally {
-            corroded.interrupt()
-        }
-    }
-
-    @Test
-    fun `Unsupported platform behavior - Corroded access`() {
+    fun `Unsupported platform behavior - PinnedThread access`() {
         unsupportedPlatform {
-            val desiredTextMask = textTestMask
+            val desiredAffinityDescriptor = testAffinityDescriptor
             val runnable = unlatchAndSleepRunnable()
-            val corroded = PinnedThread(runnable)
+            val pinned = PinnedThread(runnable)
             try {
-                corroded.start()
+                pinned.start()
                 latch.await()
-                corroded.nativeId() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
-                corroded.affinity() shouldBeEqualTo AffinityDescriptor.UNSUPPORTED
-                corroded.affinity(desiredTextMask)
-                corroded.affinity() shouldBeEqualTo AffinityDescriptor.UNSUPPORTED
+                pinned.nativeId() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
+                pinned.affinity() shouldBeEqualTo AffinityDescriptor.UNSUPPORTED
+                pinned.affinity(desiredAffinityDescriptor)
+                pinned.affinity() shouldBeEqualTo AffinityDescriptor.UNSUPPORTED
             } finally {
-                corroded.interrupt()
+                pinned.interrupt()
             }
         }
     }
 
-    private class ExtendedPinnedThreadTextMask(mask: String, private val runnable: Runnable) : PinnedThread(mask) {
-        override fun run() = runnable.run()
-    }
-
-    private class ExtendedPinnedThreadBinaryMask(val mask: Long, private val runnable: Runnable) : PinnedThread(mask) {
+    private class ExtendedPinnedThread(
+            affinity: AffinityDescriptor,
+            private val runnable: Runnable) : PinnedThread(affinity) {
         override fun run() = runnable.run()
     }
 

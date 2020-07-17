@@ -20,24 +20,30 @@ public class PinnedThread extends Thread {
         super(target);
     }
 
-    public PinnedThread(final @Nonnull Runnable target, final long mask) {
+    public PinnedThread(
+            final @Nonnull Runnable target,
+            final @Nonnull String name) {
+        super(target, name);
+    }
+
+    public PinnedThread(
+            final @Nonnull Runnable target,
+            final @Nonnull AffinityDescriptor affinity) {
         super(target);
-        initializer = () -> affinity(mask);
+        initializer = () -> affinity(affinity);
     }
 
-    public PinnedThread(final @Nonnull Runnable target, final @Nonnull String mask) {
-        super(target);
-        initializer = () -> affinity(mask);
+    public PinnedThread(
+            final @Nonnull Runnable target,
+            final @Nonnull String name,
+            final @Nonnull AffinityDescriptor affinity) {
+        super(target, name);
+        initializer = () -> affinity(affinity);
     }
 
-    protected PinnedThread(final long mask) {
+    protected PinnedThread(final @Nonnull AffinityDescriptor affinity) {
         super();
-        initializer = () -> affinity(mask);
-    }
-
-    protected PinnedThread(final String mask) {
-        super();
-        initializer = () -> affinity(mask);
+        initializer = () -> affinity(affinity);
     }
 
     public final AffinityDescriptor affinity() {
@@ -45,14 +51,9 @@ public class PinnedThread extends Thread {
         return Needle.affinity(this);
     }
 
-    public final void affinity(final @Nonnull String mask) {
+    public final void affinity(final @Nonnull AffinityDescriptor affinity) {
         ensureInitialization();
-        Needle.affinity(mask, this);
-    }
-
-    public final void affinity(final long mask) {
-        ensureInitialization();
-        Needle.affinity(mask, this);
+        Needle.affinity(affinity, this);
     }
 
     protected final void initialize() {

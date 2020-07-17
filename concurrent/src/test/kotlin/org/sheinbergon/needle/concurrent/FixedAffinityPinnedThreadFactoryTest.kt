@@ -8,20 +8,14 @@ import java.util.concurrent.CountDownLatch
 class FixedAffinityPinnedThreadFactoryTest {
 
     @Test
-    fun `Initialize the factory using a binary mask`() {
+    fun `Initialize the factory`() {
         val factory =
-            FixedAffinityPinnedThreadFactory(binaryTestMask)
-        testCorrodedFactory(factory)
+            FixedAffinityPinnedThreadFactory(testAffinityDescriptor)
+        testPinnedThreadFactory(factory)
     }
 
-    @Test
-    fun `Initialize the factory using a text mask`() {
-        val factory =
-            FixedAffinityPinnedThreadFactory(textTestMask)
-        testCorrodedFactory(factory)
-    }
 
-    private fun testCorrodedFactory(factory: PinnedThreadFactory) {
+    private fun testPinnedThreadFactory(factory: PinnedThreadFactory) {
         val latch = CountDownLatch(`1`)
         val pinned = factory.newThread(task(latch))
         pinned.start()

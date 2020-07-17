@@ -28,21 +28,20 @@ class GovernedAffinityPinnedThreadFactoryTest {
         latch.await(true)
         val original = pinned.affinity()
         original.mask() shouldBeEqualTo default.mask()
-        factory.alter(negatedBinaryTestMask, true)
+        factory.alter(negatedTestAffinityDescriptor, true)
         val altered = pinned.affinity()
         altered.mask() shouldBeEqualTo negatedBinaryTestMask
     }
 
     @Test
     fun `Initialize the factory using a binary a mask and alter the affinity of newly created pinned threads`() {
-        val factory =
-            GovernedAffinityPinnedThreadFactory(binaryTestMask)
+        val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
         val pinned1 = factory.newThread(unlatchAndSleepTask())
         pinned1.start()
         latch.await(true)
         val original = pinned1.affinity()
         original.mask() shouldBeEqualTo binaryTestMask
-        factory.alter(negatedBinaryTestMask, false)
+        factory.alter(negatedTestAffinityDescriptor, false)
         val unaltered = pinned1.affinity()
         unaltered.mask() shouldBeEqualTo binaryTestMask
         val pinned2 = factory.newThread(unlatchAndSleepTask())
@@ -54,8 +53,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
 
     @Test
     fun `Verify governed pinned threads factory behavior`() {
-        val factory =
-            GovernedAffinityPinnedThreadFactory(textTestMask)
+        val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
         factory.goverened() shouldBeEqualTo `0`
         val pinned1 = factory.newThread(unlatchAndSleepTask())
         pinned1.start()
@@ -63,7 +61,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
         latch.await(true)
         val original = pinned1.affinity()
         original.mask() shouldBeEqualTo binaryTestMask
-        factory.alter(negatedTextTestMask, true)
+        factory.alter(negatedTestAffinityDescriptor, true)
         val altered = pinned1.affinity()
         altered.mask() shouldBeEqualTo negatedBinaryTestMask
         val pinned2 = factory.newThread(unlatchAndSleepTask())

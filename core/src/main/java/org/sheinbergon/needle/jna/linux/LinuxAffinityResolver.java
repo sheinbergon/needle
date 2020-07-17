@@ -29,17 +29,17 @@ public final class LinuxAffinityResolver extends AffinityResolver<Long> {
     }
 
     @Override
-    public void thread(final @Nonnull Long pthreadId, final @Nonnull AffinityDescriptor cores) {
+    public void thread(final @Nonnull Long identifier, final @Nonnull AffinityDescriptor affinity) {
         val set = cpuSet();
-        set.__bits[0] |= cores.mask();
-        Libpthread.pthread_setaffinity_np(pthreadId, set.bytes(), set);
+        set.__bits[0] |= affinity.mask();
+        Libpthread.pthread_setaffinity_np(identifier, set.bytes(), set);
     }
 
     @Nonnull
     @Override
-    public AffinityDescriptor thread(@Nonnull Long pthreadId) {
+    public AffinityDescriptor thread(@Nonnull Long identifier) {
         val set = cpuSet();
-        Libpthread.pthread_getaffinity_np(pthreadId, set.bytes(), set);
+        Libpthread.pthread_getaffinity_np(identifier, set.bytes(), set);
         val mask = set.__bits[0];
         return AffinityDescriptor.from(mask);
     }

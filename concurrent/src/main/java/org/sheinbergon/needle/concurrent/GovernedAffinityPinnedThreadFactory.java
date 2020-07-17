@@ -2,6 +2,7 @@ package org.sheinbergon.needle.concurrent;
 
 import com.google.common.collect.Sets;
 import lombok.val;
+import org.sheinbergon.needle.AffinityDescriptor;
 import org.sheinbergon.needle.PinnedThread;
 import org.sheinbergon.needle.concurrent.util.ResettableOneOffLatch;
 
@@ -15,7 +16,6 @@ import java.util.function.Consumer;
 
 public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFactory {
 
-
     @Nonnull
     private final Set<PinnedThread> instances = Sets.newHashSet();
     @Nonnull
@@ -23,29 +23,16 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
     @Nonnull
     private final ResettableOneOffLatch startupLatch = new ResettableOneOffLatch();
     @Nullable
-    private volatile Long binaryMask;
-    @Nullable
-    private volatile String textMask;
+    private volatile AffinityDescriptor affinity;
 
     /* No args constructor build pinned thread without an affinity mask
      * You can also set one after the thread has started it's execution
      */
     public GovernedAffinityPinnedThreadFactory() {
-        this(null, null);
     }
 
-    public GovernedAffinityPinnedThreadFactory(final @Nonnull Long mask) {
-        this(null, mask);
-    }
-
-    public GovernedAffinityPinnedThreadFactory(final @Nonnull String mask) {
-        this(mask, null);
-    }
-
-    private GovernedAffinityPinnedThreadFactory(final @Nullable String textMask,
-                                                final @Nullable Long binaryMask) {
-        this.textMask = textMask;
-        this.binaryMask = binaryMask;
+    public GovernedAffinityPinnedThreadFactory(final @Nonnull AffinityDescriptor affinity) {
+        this.affinity = affinity;
     }
 
     public int goverened() {
@@ -56,19 +43,10 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
     }
 
     public void alter(
-            final @Nonnull String textMask,
+            final @Nonnull AffinityDescriptor affinity,
             final boolean affectRunning) {
-        this.textMask = textMask;
-        this.binaryMask = null;
-        if (affectRunning) alter(pinned -> pinned.affinity(textMask));
-    }
-
-    public void alter(
-            final long binaryMask,
-            final boolean affectRunning) {
-        this.textMask = null;
-        this.binaryMask = binaryMask;
-        if (affectRunning) alter(pinned -> pinned.affinity(binaryMask));
+        this.affinity = affinity;
+        if (affectRunning) alter(pinned -> pinned.affinity(affinity));
     }
 
     @Override
@@ -89,10 +67,8 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
     }
 
     private PinnedThread pinned(final @Nonnull Runnable r) {
-        if (textMask != null) {
-            return new GovernedPinnedThread(r, textMask);
-        } else if (binaryMask != null) {
-            return new GovernedPinnedThread(r, binaryMask);
+        if (affinity != null) {
+            return new GovernedPinnedThread(r, affinity);
         } else {
             return new GovernedPinnedThread(r);
         }
@@ -105,12 +81,8 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
 
     private final class GovernedPinnedThread extends PinnedThread {
 
-        GovernedPinnedThread(final @Nonnull Runnable target, final long mask) {
-            super(target, mask);
-        }
-
-        GovernedPinnedThread(final @Nonnull Runnable target, @Nonnull final String mask) {
-            super(target, mask);
+        GovernedPinnedThread(final @Nonnull Runnable target, @Nonnull final AffinityDescriptor affinity) {
+            super(target, affinity);
         }
 
         GovernedPinnedThread(final @Nonnull Runnable target) {

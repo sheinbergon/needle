@@ -33,7 +33,7 @@ class NeedleTest {
     fun `Unsupported platform behavior - Thread access`() {
         unsupportedPlatform {
             Needle.affinity() shouldBe AffinityDescriptor.UNSUPPORTED
-            Needle.affinity(NumberUtils.LONG_ONE)
+            Needle.affinity(firstCoreAffinityDescriptor)
             Needle.affinity() shouldBe AffinityDescriptor.UNSUPPORTED
             Needle.self() shouldBeEqualTo NumberUtils.LONG_MINUS_ONE
         }
@@ -43,15 +43,8 @@ class NeedleTest {
     fun `Set affinity for a JVM Thread using a binary mask`() {
         val textMask = textTestMask
         val binaryMask: Long = binaryTestMask
-        val thread = thread(start = false, block = setAffinityRunnable(binaryMask))
-        launchAndVerify(thread, binaryMask, textMask)
-    }
-
-    @Test
-    fun `Set affinity for a JVM Thread using a text mask`() {
-        val textMask = textTestMask
-        val binaryMask: Long = binaryTestMask
-        val thread = thread(start = false, block = setAffinityRunnable(textMask))
+        val affinity = testAffinityDescriptor
+        val thread = thread(start = false, block = setAffinityRunnable(testAffinityDescriptor))
         launchAndVerify(thread, binaryMask, textMask)
     }
 
@@ -66,15 +59,7 @@ class NeedleTest {
         }
     }
 
-    private fun setAffinityRunnable(affinity: String): () -> Unit = {
-        Needle.affinity(affinity)
-        val descriptor = Needle.affinity()
-        binaryResult.value = descriptor.mask()
-        textResult.value = descriptor.toString()
-        latch.countDown()
-    }
-
-    private fun setAffinityRunnable(affinity: Long): () -> Unit = {
+    private fun setAffinityRunnable(affinity: AffinityDescriptor): () -> Unit = {
         Needle.affinity(affinity)
         val descriptor = Needle.affinity()
         binaryResult.value = descriptor.mask()

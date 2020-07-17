@@ -12,6 +12,7 @@ const val `2` = 2
 const val `1` = 1
 const val `0` = 0
 const val `-1` = -1
+const val NEEDLE = "needle"
 
 val availableCores = AffinityDescriptor.AVAILABLE_CORES
 
@@ -24,9 +25,15 @@ val binaryTestMask by lazy {
     else `1L`
 }
 
+val firstCoreAffinityDescriptor = AffinityDescriptor.from(`1L`)
+
+val testAffinityDescriptor = AffinityDescriptor.from(binaryTestMask)
+
 val negatedBinaryTestMask by lazy {
     binaryTestMask.xor(maskUpperBound - `1L`)
 }
+
+val negatedTestAffinityDescriptor = AffinityDescriptor.from(negatedBinaryTestMask)
 
 val textTestMask by lazy {
     binaryMaskRanges(binaryTestMask).textMask()

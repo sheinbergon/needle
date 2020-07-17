@@ -36,8 +36,8 @@ public final class Win32AffinityResolver extends AffinityResolver<WinNT.HANDLE> 
     }
 
     @Override
-    public synchronized void thread(final @Nonnull WinNT.HANDLE handle, final @Nonnull AffinityDescriptor cores) {
-        val mask = cores.mask();
+    public synchronized void thread(final @Nonnull WinNT.HANDLE handle, final @Nonnull AffinityDescriptor affinity) {
+        val mask = affinity.mask();
         val pointer = new BaseTSD.DWORD_PTR(mask);
         Kernel32.SetThreadAffinityMask(handle, pointer);
     }
