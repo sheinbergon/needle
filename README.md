@@ -1,7 +1,11 @@
 # Needle
-[![codecov](https://codecov.io/gh/sheinbergon/needle/branch/master/graph/badge.svg)](https://codecov.io/gh/sheinbergon/needle)
-![multi-platform-ci](https://github.com/sheinbergon/needle/workflows/multi-platform-ci/badge.svg?branch=master&event=push)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
+
+
+![Codecov](https://img.shields.io/codecov/c/github/sheinbergon/needle?logo=codecov&style=for-the-badge)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sheinbergon/needle/multi-platform-ci?logo=github&style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/sheinbergon/needle?color=orange&logo=apache&style=for-the-badge)
 
 **Needle** provides feature rich core affinity support for the JVM, 
 focusing on ease of integration and extensibility  
