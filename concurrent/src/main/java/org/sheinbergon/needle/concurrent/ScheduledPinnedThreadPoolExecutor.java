@@ -14,11 +14,11 @@ public class ScheduledPinnedThreadPoolExecutor extends ScheduledThreadPoolExecut
         super(size, factory);
     }
 
-    public static ScheduledExecutorService newSinglePinnedScheduledExecutor(final @Nonnull PinnedThreadFactory factory) {
+    public static ScheduledExecutorService newSinglePinnedThreadScheduledExecutor(final @Nonnull PinnedThreadFactory factory) {
         return new ScheduledPinnedThreadPoolExecutor(NumberUtils.INTEGER_ONE, factory);
     }
 
-    public static ExecutorService newScheduledPinnedPool(final int size, final @Nonnull PinnedThreadFactory factory) {
+    public static ExecutorService newScheduledPinnedThreadPool(final int size, final @Nonnull PinnedThreadFactory factory) {
         return new ScheduledPinnedThreadPoolExecutor(size, factory);
     }
 
