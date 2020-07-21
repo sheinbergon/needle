@@ -44,7 +44,7 @@ class NeedleTest {
         val textMask = textTestMask
         val binaryMask: Long = binaryTestMask
         val affinity = testAffinityDescriptor
-        val thread = thread(start = false, block = setAffinityRunnable(testAffinityDescriptor))
+        val thread = thread(start = false, block = setAffinityRunnable(affinity))
         launchAndVerify(thread, binaryMask, textMask)
     }
 

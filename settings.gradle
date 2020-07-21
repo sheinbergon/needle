@@ -1,4 +1,6 @@
 include 'core'
 findProject(':core')?.name = 'needle-core'
+include 'knitter'
+findProject(':knitter')?.name = 'needle-knitter'
 include 'concurrent'
 findProject(':concurrent')?.name = 'needle-concurrent'
