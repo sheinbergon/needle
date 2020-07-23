@@ -16,53 +16,99 @@ import java.util.function.Consumer;
 
 public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFactory {
 
+    /**
+     * A collection storing the live {@code PinnedThread} instances managed by this factory.
+     */
     @Nonnull
-    private final Set<PinnedThread> instances = Sets.newHashSet();
+    private final Set<PinnedThread> governed = Sets.newHashSet();
+
+    /**
+     * A lock used to synchronize accesses to the {@code GovernedAffinityPinnedThreadFactory#governed} collection.
+     */
     @Nonnull
-    private final Lock instancesLock = new ReentrantLock();
+    private final Lock accessLock = new ReentrantLock();
+
+    /**
+     * A resettable latch used to ensure a predictable/thread-safe behavior for
+     * the time frame between a {@code PinnedThread} inception to its start.
+     */
     @Nonnull
-    private final ResettableOneOffLatch startupLatch = new ResettableOneOffLatch();
+    private final ResettableOneOffLatch pinnedThreadStartLatch = new ResettableOneOffLatch();
+
+    /**
+     * The mutable {@code AffinityDescriptor} to use for setting affinity for new (and existing)
+     * {@code PinnedThread} instances governed by this factory.
+     */
     @Nullable
     private volatile AffinityDescriptor affinity;
 
-    /* No args constructor build pinned thread without an affinity mask
-     * You can also set one after the thread has started it's execution
+    /**
+     * Build {@code PinnedThread} instances using the default process affinity
+     * for newly created {@code PinnedThread} instances.
+     * <p>
+     * Note: you can set the affinity settings for both governed and future threads by calling
+     * {@code GovernedAffinityPinnedThreadFactory#alter(Consumer)} beyond the instantiation of this factory
      */
     public GovernedAffinityPinnedThreadFactory() {
     }
 
-    public GovernedAffinityPinnedThreadFactory(final @Nonnull AffinityDescriptor affinity) {
-        this.affinity = affinity;
+    /**
+     * Build {@code PinnedThread} instances using the given {@code AffinityDescriptor}
+     * for newly created {@code PinnedThread} instances.
+     * <p>
+     * Note: you can set the affinity settings for both governed and future threads by calling
+     * {@code GovernedAffinityPinnedThreadFactory#alter(Consumer)} beyond the instantiation of this factory
+     * <p>
+     *
+     * @param affinityDescriptor The affinity descriptor to use for creating new {@code PinnedThread} instances
+     */
+    public GovernedAffinityPinnedThreadFactory(final @Nonnull AffinityDescriptor affinityDescriptor) {
+        this.affinity = affinityDescriptor;
     }
 
-    public int goverened() {
-        startupLatch.await(false);
+    /**
+     * Safely returns the live {@code PinnedThread } count governed by this factory.
+     *
+     * @return the amount of {@code PinnedThread} instances currently governed by this factory
+     */
+    public int governed() {
+        pinnedThreadStartLatch.await(false);
         val size = new AtomicInteger();
-        safe(instances -> size.set(instances.size()));
+        safe(() -> size.set(governed.size()));
         return size.get();
     }
 
+
+    /**
+     * Safely returns the live {@code PinnedThread } count governed by this factory.
+     *
+     * @param affinityDescriptor The affinity descriptor to use for creating new {@code PinnedThread} instances
+     * @param affectGoverned     Whether or not the provide {@code AffinityDescriptor} should be applied to the
+     *                           currently governed {@code PinnedThread} set
+     */
     public void alter(
-            final @Nonnull AffinityDescriptor affinity,
-            final boolean affectRunning) {
-        this.affinity = affinity;
-        if (affectRunning) alter(pinned -> pinned.affinity(affinity));
+            final @Nonnull AffinityDescriptor affinityDescriptor,
+            final boolean affectGoverned) {
+        this.affinity = affinityDescriptor;
+        if (affectGoverned) {
+            alter(pinned -> pinned.affinity(affinityDescriptor));
+        }
     }
 
     @Override
-    public final PinnedThread newThread(final @Nonnull Runnable r) {
-        startupLatch.await(true);
+    public PinnedThread newThread(final @Nonnull Runnable r) {
+        pinnedThreadStartLatch.await(true);
         val pinned = pinned(r);
-        safe(instances -> instances.add(pinned));
+        safe(() -> governed.add(pinned));
         return pinned;
     }
 
-    private void safe(final @Nonnull Consumer<Set<PinnedThread>> action) {
-        instancesLock.lock();
+    private void safe(final @Nonnull Runnable action) {
+        accessLock.lock();
         try {
-            action.accept(instances);
+            action.run();
         } finally {
-            instancesLock.unlock();
+            accessLock.unlock();
         }
     }
 
@@ -75,14 +121,14 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
     }
 
     private void alter(final @Nonnull Consumer<PinnedThread> fn) {
-        startupLatch.await(false);
-        safe(instances -> instances.forEach(fn));
+        pinnedThreadStartLatch.await(false);
+        safe(() -> governed.forEach(fn));
     }
 
     private final class GovernedPinnedThread extends PinnedThread {
 
-        GovernedPinnedThread(final @Nonnull Runnable target, @Nonnull final AffinityDescriptor affinity) {
-            super(target, affinity);
+        GovernedPinnedThread(final @Nonnull Runnable target, @Nonnull final AffinityDescriptor descriptor) {
+            super(target, descriptor);
         }
 
         GovernedPinnedThread(final @Nonnull Runnable target) {
@@ -92,10 +138,10 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
         @Override
         public void run() {
             try {
-                startupLatch.fire();
+                pinnedThreadStartLatch.fire();
                 super.run();
             } finally {
-                safe(instances -> instances.remove(this));
+                safe(() -> governed.remove(this));
             }
         }
     }

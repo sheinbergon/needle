@@ -9,11 +9,15 @@ import javax.annotation.Nonnull;
 @RequiredArgsConstructor
 public final class FixedAffinityPinnedThreadFactory implements PinnedThreadFactory {
 
+    /**
+     * The {@link AffinityDescriptor} to use for setting affinity for
+     * {@link PinnedThread} instances governed by this factory.
+     */
     @Nonnull
     private final AffinityDescriptor affinity;
 
     @Override
-    public final PinnedThread newThread(final @Nonnull Runnable r) {
+    public PinnedThread newThread(final @Nonnull Runnable r) {
         return new PinnedThread(r, affinity);
     }
 }

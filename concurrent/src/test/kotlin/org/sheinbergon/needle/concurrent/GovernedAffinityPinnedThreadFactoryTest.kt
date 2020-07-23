@@ -54,10 +54,10 @@ class GovernedAffinityPinnedThreadFactoryTest {
     @Test
     fun `Verify governed pinned threads factory behavior`() {
         val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
-        factory.goverened() shouldBeEqualTo `0`
+        factory.governed() shouldBeEqualTo `0`
         val pinned1 = factory.newThread(unlatchAndSleepTask())
         pinned1.start()
-        factory.goverened() shouldBeEqualTo `1`
+        factory.governed() shouldBeEqualTo `1`
         latch.await(true)
         val original = pinned1.affinity()
         original.mask() shouldBeEqualTo binaryTestMask
@@ -66,10 +66,10 @@ class GovernedAffinityPinnedThreadFactoryTest {
         altered.mask() shouldBeEqualTo negatedBinaryTestMask
         val pinned2 = factory.newThread(unlatchAndSleepTask())
         pinned2.start()
-        factory.goverened() shouldBeEqualTo `2`
+        factory.governed() shouldBeEqualTo `2`
         latch.await(false)
         Thread.sleep(2000L)
-        factory.goverened() shouldBeEqualTo `0`
+        factory.governed() shouldBeEqualTo `0`
     }
 
 }

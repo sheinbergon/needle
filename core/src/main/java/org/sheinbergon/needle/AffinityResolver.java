@@ -1,5 +1,6 @@
 package org.sheinbergon.needle;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.sun.jna.Platform;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,15 @@ import javax.annotation.Nonnull;
 @SuppressWarnings({"rawtypes"})
 public abstract class AffinityResolver<I> {
 
+    /**
+     * The concrete {@code AffinityResolver} instance to be used for various affinity resolution tasks.
+     * Set during initial class loading. Available implementations are
+     * <li>
+     * <li>{@link LinuxAffinityResolver} - Linux Libpthread/Libc based implementation</li>
+     * <li>{@link Win32AffinityResolver} - Windows Kernel32 based implementation</li>
+     * <li>{@link AffinityResolver.NoOp} - Stub/No-op fallback implementation</li>
+     * </li>
+     */
     static final AffinityResolver instance;
 
     static {
@@ -27,7 +37,7 @@ public abstract class AffinityResolver<I> {
     @Nonnull
     protected abstract I self();
 
-    final void thread(@Nonnull AffinityDescriptor affinity) {
+    final void thread(final @Nonnull AffinityDescriptor affinity) {
         thread(self(), affinity);
     }
 
@@ -47,7 +57,11 @@ public abstract class AffinityResolver<I> {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static final class NoOp extends AffinityResolver<Object> {
 
-        public static AffinityResolver<?> INSTANCE = new NoOp();
+        /**
+         * Singleton instance for {@link NoOp} {@link AffinityResolver} stub implementation.
+         */
+        @VisibleForTesting
+        static final AffinityResolver<?> INSTANCE = new NoOp();
 
         @Nonnull
         @Override
@@ -62,12 +76,13 @@ public abstract class AffinityResolver<I> {
         }
 
         @Override
-        protected void thread(@Nonnull Object identifier, @Nonnull AffinityDescriptor affinity) {
+        protected void thread(final @Nonnull Object identifier,
+                              final @Nonnull AffinityDescriptor affinity) {
         }
 
         @Nonnull
         @Override
-        protected AffinityDescriptor thread(@Nonnull Object identifier) {
+        protected AffinityDescriptor thread(final @Nonnull Object identifier) {
             return AffinityDescriptor.UNSUPPORTED;
         }
     }

@@ -8,15 +8,15 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.win32.W32APIOptions;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.val;
 
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Kernel32 {
+public final class Kernel32 {
 
-    private final static String LIBRARY = "kernel32";
+    /**
+     * Kernel32 DLL name.
+     */
+    private static final String LIBRARY = "kernel32";
 
     static {
         // Only register DLL on Windows based platforms
@@ -43,4 +43,8 @@ public class Kernel32 {
     static native BaseTSD.DWORD_PTR SetThreadAffinityMask(
             WinNT.HANDLE hThread,
             BaseTSD.DWORD_PTR dwThreadAffinityMask);
+
+
+    private Kernel32() {
+    }
 }

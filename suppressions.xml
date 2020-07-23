@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress files="(Libpthread|Libc|Kernel32)\.java" checks="MethodName"/>
+    <suppress files="structure/CpuSet\.java" checks="MemberName|VisibilityModifier"/>
+
+</suppressions>

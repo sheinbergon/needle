@@ -1,5 +1,6 @@
 package org.sheinbergon.needle;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -9,22 +10,50 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.sheinbergon.needle.util.AffinityDescriptorException;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@RequiredArgsConstructor
 @Accessors(fluent = true)
 public class AffinityDescriptor {
 
+    /**
+     * Available core count as detected by the JVM.
+     */
+    @VisibleForTesting
     static final int AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+
+    /**
+     * Binary affinity mask upper bound, set according to {@link AffinityDescriptor#AVAILABLE_CORES}.
+     */
+    @VisibleForTesting
     static final int MASK_UPPER_BOUND = (int) Math.pow(2, AVAILABLE_CORES);
+
+    /**
+     * Textual mask core specification delimiter char.
+     */
+    @VisibleForTesting
     static final String SPECIFICATION_DELIMITER = ",";
+
+
+    /**
+     * Textual mask core range specification char.
+     */
+    @VisibleForTesting
     static final String RANGE_DELIMITER = "-";
 
+    /**
+     * This {@code AffinityDescriptor} instance is used when the underlying OS is
+     * not supported by this library.
+     */
+    @VisibleForTesting
     static final AffinityDescriptor UNSUPPORTED = new AffinityDescriptor() {
         @Override
         public long mask() {
@@ -37,30 +66,50 @@ public class AffinityDescriptor {
         }
     };
 
+    /**
+     * Regex pattern for core range specification.
+     */
     private static final Pattern RANGE = Pattern.compile("^\\s*(\\d{1,3})\\s*-\\s*(\\d{1,3})\\s*$");
+
+    /**
+     * Regex pattern for single core specification.
+     */
     private static final Pattern SINGLE = Pattern.compile("^\\s*(\\d{1,3})\\s*$");
 
+    /**
+     * Zero or more affinity {@code Specification} the {@code AffinityDescriptor} is comprised of.
+     */
     @Nonnull
     private final Set<Specification> specifications;
 
+    /**
+     * The computed binary affinity mask computed from the given {@link AffinityDescriptor#specifications}.
+     */
     @Getter(lazy = true)
     private final long mask = computeMask();
 
-    private AffinityDescriptor(Specification... specifications) {
-        this.specifications = Set.of(specifications);
+    AffinityDescriptor(final Specification... affinitySpecifications) {
+        this.specifications = Set.of(affinitySpecifications);
     }
 
     static AffinityDescriptor process() {
         return AffinityResolver.instance.process();
     }
 
+    /**
+     * Factory method to instantiate an {@code AffinityDescriptor} from a given binary mask.
+     *
+     * @param mask the binary mask affinity specification
+     * @return an {@code AffinityDescriptor} matching the given binary mask
+     */
     public static AffinityDescriptor from(final long mask) {
         val specifications = new HashSet<Specification>();
         Integer start = null, end = null;
         for (var core = 0; core < Long.SIZE; core++) {
             if (((1L << core) & mask) > 0) {
-                if (start == null)
+                if (start == null) {
                     start = core;
+                }
                 end = core;
             } else {
                 if (start != null && end != null) {
@@ -72,6 +121,12 @@ public class AffinityDescriptor {
         return from(specifications);
     }
 
+    /**
+     * Factory method to instantiate an {@code AffinityDescriptor} from a given textual mask.
+     *
+     * @param mask the textual mask affinity specification
+     * @return an {@code AffinityDescriptor} matching the given textual mask
+     */
     public static AffinityDescriptor from(final @Nonnull String mask) {
         val specifications = Arrays.stream(StringUtils.split(mask, SPECIFICATION_DELIMITER))
                 .filter(Predicate.not(String::isBlank))
@@ -84,14 +139,15 @@ public class AffinityDescriptor {
         if (specifications.isEmpty()) {
             return process();
         } else {
-            val descriptor = new AffinityDescriptor(specifications);
+            val descriptor = new AffinityDescriptor(specifications.toArray(Specification[]::new));
             validate(descriptor.mask());
             return descriptor;
         }
     }
 
     private static Specification specificationFrom(final @Nonnull String specification) {
-        int start, end;
+        int start;
+        int end;
         Matcher matcher;
         if ((matcher = RANGE.matcher(specification)).matches()) {
             start = Integer.parseInt(matcher.group(1));
@@ -112,6 +168,9 @@ public class AffinityDescriptor {
         }
     }
 
+    /**
+     * Generates a textual representation of the affinity mask described by this {@code AffinityDescriptor}.
+     */
     @Override
     public String toString() {
         return specifications.stream()
@@ -121,12 +180,12 @@ public class AffinityDescriptor {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hashCode(mask());
     }
 
     @Override
-    public boolean equals(Object other) {
+    public final boolean equals(final Object other) {
         if (other == null) {
             return false;
         } else if (other == this) {
@@ -154,7 +213,8 @@ public class AffinityDescriptor {
             } else if (diff == 0) {
                 return new Specification.Single(end);
             } else {
-                throw new AffinityDescriptorException(String.format("Invalid core range, starts at %d, ends at %d", start, end));
+                throw new AffinityDescriptorException(
+                        String.format("Invalid core range, starts at %d, ends at %d", start, end));
             }
         }
 
@@ -163,6 +223,9 @@ public class AffinityDescriptor {
         @RequiredArgsConstructor
         @Accessors(fluent = true)
         class Single implements Specification {
+            /**
+             * Single core numeric index.
+             */
             private final int core;
 
             @Override
@@ -179,9 +242,20 @@ public class AffinityDescriptor {
         @RequiredArgsConstructor
         @Accessors(fluent = true)
         class Range implements Specification {
+            /**
+             * Core range (inclusive) start numeric index.
+             */
             private final int start;
+
+            /**
+             * Core range (inclusive) end numeric index.
+             */
             private final int end;
 
+
+            /**
+             * The computed binary affinity mask computed from the specified range.
+             */
             @Getter(lazy = true)
             private final long mask = computeMask();
 
