@@ -25,7 +25,7 @@ jobs:
           architecture: x64
 
       - name: Run tests via gradle
-        run: ./gradlew clean test
+        run: ./gradlew clean build test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
