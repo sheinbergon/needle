@@ -6,6 +6,6 @@
 
 <suppressions>
     <suppress files="(Libpthread|Libc|Kernel32)\.java" checks="MethodName"/>
-    <suppress files="structure/CpuSet\.java" checks="MemberName|VisibilityModifier"/>
-
+    <suppress files="structure/.+\.java" checks="MemberName|VisibilityModifier"/>
+    <suppress files="needle/(Needle|AffinityResolver)\.java" checks="ConstantName"/>
 </suppressions>

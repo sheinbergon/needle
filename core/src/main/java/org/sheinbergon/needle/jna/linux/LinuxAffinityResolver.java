@@ -17,7 +17,6 @@ public final class LinuxAffinityResolver extends AffinityResolver<Long> {
      */
     public static final AffinityResolver<?> INSTANCE = new LinuxAffinityResolver();
 
-
     /**
      * Own OS process id (PID) determined during class-loading.
      */

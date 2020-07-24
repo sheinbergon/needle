@@ -14,8 +14,11 @@ import javax.annotation.Nonnull;
 public abstract class AffinityResolver<I> {
 
     /**
-     * The concrete {@code AffinityResolver} instance to be used for various affinity resolution tasks.
-     * Set during initial class loading. Available implementations are
+     * The concrete {@code AffinityResolver} instance to be used for various affinity tasks.
+     * Set during initial class loading.
+     * <p>
+     * Available implementations are:
+     *
      * <li>
      * <li>{@link LinuxAffinityResolver} - Linux Libpthread/Libc based implementation</li>
      * <li>{@link Win32AffinityResolver} - Windows Kernel32 based implementation</li>

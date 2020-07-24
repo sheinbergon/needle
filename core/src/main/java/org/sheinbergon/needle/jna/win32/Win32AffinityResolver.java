@@ -15,9 +15,19 @@ import javax.annotation.Nonnull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Win32AffinityResolver extends AffinityResolver<WinNT.HANDLE> {
 
+    /**
+     * Singleton instance for {@code AffinityResolver<WinNT.HANDLE>} concrete Win32 implementation.
+     */
     public static final AffinityResolver<?> INSTANCE = new Win32AffinityResolver();
 
+    /**
+     * Win32 {@link WinDef.BOOL} true value.
+     */
     private static final WinDef.BOOL TRUE = new WinDef.BOOL(true);
+
+    /**
+     * Win32 no-restriction security access specifier.
+     */
     private static final WinDef.DWORD ALL_ACCESS = new WinDef.DWORD(WinNT.THREAD_ALL_ACCESS);
 
     private static BaseTSD.DWORD_PTR processAffinity() {
