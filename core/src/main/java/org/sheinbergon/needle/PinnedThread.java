@@ -59,7 +59,9 @@ public class PinnedThread extends Thread {
     protected final void initialize() {
         nativeId = Needle.self();
         Objects.requireNonNull(nativeId);
-        if (initializer != null) initializer.invoke();
+        if (initializer != null) {
+            initializer.invoke();
+        }
     }
 
     @Override

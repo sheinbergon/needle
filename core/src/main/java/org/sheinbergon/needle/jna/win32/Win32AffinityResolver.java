@@ -7,8 +7,8 @@ import com.sun.jna.ptr.LongByReference;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
-import org.sheinbergon.needle.AffinityResolver;
 import org.sheinbergon.needle.AffinityDescriptor;
+import org.sheinbergon.needle.AffinityResolver;
 
 import javax.annotation.Nonnull;
 
