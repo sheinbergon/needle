@@ -1,6 +1,9 @@
 package org.sheinbergon.needle
 
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
+import org.amshove.kluent.shouldThrow
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.jupiter.api.Test
@@ -26,7 +29,8 @@ class AffinityDescriptorTest {
 
     @Test
     fun `Illegal affinity-descriptor specification - out of bounds mask`() {
-        { AffinityDescriptor.from(AffinityDescriptor.MASK_UPPER_BOUND + `1L`) } shouldThrow AffinityDescriptorException::class
+        val mask = AffinityDescriptor.MASK_UPPER_BOUND + `1L`
+        { AffinityDescriptor.from(mask) } shouldThrow AffinityDescriptorException::class
     }
 
     @Test
