@@ -23,6 +23,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 publishing {
     publications {
         knitter(MavenPublication) {
+            from components.kotlin
             artifactId = "neede-knitter"
             artifact tasks.javadocJar
             artifact tasks.sourcesJar
