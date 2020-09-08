@@ -11,7 +11,24 @@ plugins {
     id 'io.franzbecker.gradle-lombok' version '3.3.0'
 }
 
+def ossReleasesRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+def ossSnapshotsRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+
 allprojects {
+
+    ext {
+        nexus = [
+                target  : project.findProperty("nexus.target") ?: System.getenv("NEXUS_TARGET") ?: 'SNAPSHOT',
+                username: project.findProperty('nexus.username') ?: System.getenv("NEXUS_USERNAME"),
+                password: project.findProperty("nexus.password") ?: System.getenv("NEXUS_PASSWORD"),
+        ]
+        signing = [
+                gpgPrivateKey: project.findProperty("signing.gpg.privateKey") ?: System.getenv("GPG_PRIVATE_KEY"),
+                gpgPassphrase: project.findProperty("signing.gpg.passphrase") ?: System.getenv("GPG_PASSPHRASE")
+        ]
+    }
+
+    ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     group "org.sheinbergon"
     version "0.1.0"
@@ -35,23 +52,6 @@ subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'io.gitlab.arturbosch.detekt'
     apply plugin: 'io.franzbecker.gradle-lombok'
-
-    def ossReleasesRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-    def ossSnapshotsRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-
-    ext {
-        nexus = [
-                target  : project.findProperty("nexus.target") ?: System.getenv("NEXUS_TARGET") ?: 'SNAPSHOT',
-                username: project.findProperty('nexus.username') ?: System.getenv("NEXUS_USERNAME"),
-                password: project.findProperty("nexus.password") ?: System.getenv("NEXUS_PASSWORD"),
-        ]
-        signing = [
-                gpgPrivateKey: project.findProperty("signing.gpg.privateKey") ?: System.getenv("GPG_PRIVATE_KEY"),
-                gpgPassphrase : project.findProperty("signing.gpg.passphrase") ?: System.getenv("GPG_PASSPHRASE")
-        ]
-    }
-
-    ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     dependencies {
         api "net.java.dev.jna:jna-platform:5.5.0"
@@ -136,6 +136,8 @@ wrapper {
 }
 
 nexusStaging {
-    numberOfRetries = 50
-    delayBetweenRetriesInMillis = 5000
+    username = nexus.username
+    password = nexus.password
+    numberOfRetries = 66
+    delayBetweenRetriesInMillis = 6666
 }
