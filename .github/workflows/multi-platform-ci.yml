@@ -27,8 +27,12 @@ jobs:
       - name: Run tests via gradle
         run: ./gradlew clean build test
 
+      # Publish to the staging repository only once, from the Linux Runner
       - name: Publish to Staging repository
-        run: gradlew publish
+        run:  |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            ./gradlew publish
+          fi
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
