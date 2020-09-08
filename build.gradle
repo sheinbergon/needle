@@ -11,6 +11,9 @@ plugins {
     id 'io.franzbecker.gradle-lombok' version '3.3.0'
 }
 
+def ossReleasesRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+def ossSnapshotsRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+
 allprojects {
 
     ext {
@@ -24,6 +27,8 @@ allprojects {
                 gpgPassphrase: project.findProperty("signing.gpg.passphrase") ?: System.getenv("GPG_PASSPHRASE")
         ]
     }
+
+    ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     group "org.sheinbergon"
     version "0.1.0"
@@ -47,11 +52,6 @@ subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'io.gitlab.arturbosch.detekt'
     apply plugin: 'io.franzbecker.gradle-lombok'
-
-    def ossReleasesRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-    def ossSnapshotsRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-
-    ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     dependencies {
         api "net.java.dev.jna:jna-platform:5.5.0"
