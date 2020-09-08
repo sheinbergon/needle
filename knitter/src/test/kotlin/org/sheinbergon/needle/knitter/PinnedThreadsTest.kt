@@ -29,7 +29,6 @@ class PinnedThreadsTest {
         pinned.affinity().mask() shouldBeEqualTo binaryTestMask
     }
 
-
     @Test
     fun `PinnedThread creation - Kotlin interface - Default`() {
         val latch = CountDownLatch(`1`)

@@ -71,5 +71,4 @@ class GovernedAffinityPinnedThreadFactoryTest {
         Thread.sleep(2000L)
         factory.governed() shouldBeEqualTo `0`
     }
-
 }
