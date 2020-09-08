@@ -29,6 +29,7 @@ publishing {
     publications {
         core(MavenPublication) {
             artifactId = "needle-core"
+            from components.java
             artifact tasks.javadocJar
             artifact tasks.sourcesJar
             pom {
