@@ -29,10 +29,8 @@ jobs:
 
       # Publish to the staging repository only once, from the Linux Runner
       - name: Publish to Staging repository
-        run:  |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            ./gradlew publish
-          fi
+        if: runner.os == "Linux"
+        run: ./gradlew publish
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
