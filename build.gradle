@@ -1,8 +1,11 @@
 plugins {
     id 'java'
     id 'jacoco'
+    id 'signing'
     id 'checkstyle'
     id 'java-library'
+    id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.22.0'
     id "org.jetbrains.kotlin.jvm" version "1.3.72"
     id "io.gitlab.arturbosch.detekt" version "1.10.0"
     id 'io.franzbecker.gradle-lombok' version '3.3.0'
@@ -25,11 +28,30 @@ allprojects {
 subprojects {
 
     apply plugin: 'jacoco'
+    apply plugin: 'signing'
     apply plugin: 'checkstyle'
     apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'io.gitlab.arturbosch.detekt'
     apply plugin: 'io.franzbecker.gradle-lombok'
+
+    def ossReleasesRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+    def ossSnapshotsRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+
+    ext {
+        nexus = [
+                target  : project.findProperty("nexus.target") ?: System.getenv("NEXUS_TARGET") ?: 'SNAPSHOT',
+                username: project.findProperty('nexus.username') ?: System.getenv("NEXUS_USERNAME"),
+                password: project.findProperty("nexus.password") ?: System.getenv("NEXUS_PASSWORD"),
+        ]
+        signing = [
+                gpgPrivateKey: project.findProperty("signing.gpg.privateKey") ?: System.getenv("GPG_PRIVATE_KEY"),
+                gpgPassphrase : project.findProperty("signing.gpg.passphrase") ?: System.getenv("GPG_PASSPHRASE")
+        ]
+    }
+
+    ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     dependencies {
         api "net.java.dev.jna:jna-platform:5.5.0"
@@ -85,7 +107,7 @@ subprojects {
     checkstyle {
         toolVersion '8.34'
         configFile file("$rootDir/checkstyle.xml")
-        configDir = rootDir
+        configDir rootDir
     }
 
     detekt {
@@ -94,8 +116,26 @@ subprojects {
         input = files("src/main/kotlin", "src/test/kotlin")
         buildUponDefaultConfig = true
     }
+
+    afterEvaluate {
+
+        version = "$version-${nexus.target}"
+
+        signing {
+            required { nexus.target == 'RELEASE' }
+            useInMemoryPgpKeys(signing.gpgPrivateKey, signing.gpgPassphrase)
+            publishing.publications.forEach {
+                sign(it)
+            }
+        }
+    }
 }
 
 wrapper {
-    gradleVersion = "6.3"
+    gradleVersion = "6.6.1"
+}
+
+nexusStaging {
+    numberOfRetries = 50
+    delayBetweenRetriesInMillis = 5000
 }

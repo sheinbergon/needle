@@ -9,11 +9,9 @@ class FixedAffinityPinnedThreadFactoryTest {
 
     @Test
     fun `Initialize the factory`() {
-        val factory =
-            FixedAffinityPinnedThreadFactory(testAffinityDescriptor)
+        val factory = FixedAffinityPinnedThreadFactory(testAffinityDescriptor)
         testPinnedThreadFactory(factory)
     }
-
 
     private fun testPinnedThreadFactory(factory: PinnedThreadFactory) {
         val latch = CountDownLatch(`1`)
