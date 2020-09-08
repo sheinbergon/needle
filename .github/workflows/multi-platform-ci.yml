@@ -32,6 +32,7 @@ jobs:
         if: runner.os == 'Linux'
         run: ./gradlew publish
         env:
+          NEXUS_TARGET: SNAPSHOT
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 

@@ -19,9 +19,10 @@ jobs:
           java-version: 11
           architecture: x64
 
-      - name: Publish
-        run: gradlew publish closeAndReleaseRepository
+      - name: Publish To Release Repository
+        run: ./gradlew publish closeAndReleaseRepository
         env:
+          NEXUS_TARGET: RELEASE
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
