@@ -10,7 +10,7 @@
 **Needle** provides feature rich core affinity support for the JVM, 
 focusing on ease of integration and extensibility  
 
-For a complete usage guide and detailed information, see the project [Wiki](https://github.com/sheinbergon/needle/wiki/Introduction)
+For a complete usage guide and detailed information, see the project [Wiki](https://github.com/sheinbergon/needle/wiki)
 
 # Licensing
 needle is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/sheinbergon/needle/blob/master/LICENSE) for the full license text.
