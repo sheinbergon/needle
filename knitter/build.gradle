@@ -3,7 +3,6 @@ plugins {
 }
 
 dependencies {
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     api project(':needle-core')
@@ -24,7 +23,7 @@ publishing {
     publications {
         knitter(MavenPublication) {
             from components.kotlin
-            artifactId = "neede-knitter"
+            artifactId = "needle-knitter"
             artifact tasks.javadocJar
             artifact tasks.sourcesJar
             pom {
