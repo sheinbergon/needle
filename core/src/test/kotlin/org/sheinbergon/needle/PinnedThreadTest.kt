@@ -2,12 +2,15 @@ package org.sheinbergon.needle
 
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.sheinbergon.needle.util.NeedleException
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.RecursiveAction
 
 class PinnedThreadTest {
 
@@ -32,6 +35,7 @@ class PinnedThreadTest {
         try {
             pinned.start()
             latch.await()
+            pinned.nativeId().shouldNotBeNull()
             pinned.affinity() shouldBeEqualTo default
         } finally {
             pinned.interrupt()
@@ -46,6 +50,7 @@ class PinnedThreadTest {
             pinned.start()
             pinned.name shouldBeEqualTo NEEDLE
             latch.await()
+            pinned.nativeId().shouldNotBeNull()
             pinned.affinity() shouldBeEqualTo default
         } finally {
             pinned.interrupt()
@@ -61,6 +66,7 @@ class PinnedThreadTest {
         try {
             pinned.start()
             latch.await()
+            pinned.nativeId().shouldNotBeNull()
             pinned.affinity().toString() shouldBeEqualTo desiredMask
         } finally {
             pinned.interrupt()
@@ -77,6 +83,7 @@ class PinnedThreadTest {
             pinned.start()
             pinned.name shouldBeEqualTo NEEDLE
             latch.await()
+            pinned.nativeId().shouldNotBeNull()
             pinned.affinity().toString() shouldBeEqualTo desiredMask
         } finally {
             pinned.interrupt()
@@ -93,6 +100,7 @@ class PinnedThreadTest {
         try {
             pinned.start()
             latch.await()
+            pinned.nativeId().shouldNotBeNull()
             pinned.affinity() shouldBeEqualTo default
             pinned.affinity(desiredAffinityDescriptor)
             pinned.affinity() shouldNotBeEqualTo default
@@ -100,6 +108,45 @@ class PinnedThreadTest {
             pinned.affinity().toString() shouldBeEqualTo desiredTextMask
         } finally {
             pinned.interrupt()
+        }
+    }
+
+    @Test
+    fun `Utilizing a Pinned ForkJoinWorker thread using explicitly defined affinity`() {
+        val desiredTextMask = textTestMask
+        val desiredBinaryMask = binaryTestMask
+        val desiredAffinityDescriptor = testAffinityDescriptor
+        val factory = SingleThreadedForkJoinWorkerThreadFactory(desiredAffinityDescriptor)
+        val pool = ForkJoinPool(`1`, factory, null, false)
+        val action = unlatchAndSleepAction()
+        try {
+            pool.invoke(action)
+            latch.await()
+            val pinned = factory[pool]!!
+            pinned.nativeId().shouldNotBeNull()
+            pinned.affinity().mask() shouldBeEqualTo desiredBinaryMask
+            pinned.affinity().toString() shouldBeEqualTo desiredTextMask
+        } finally {
+            pool.shutdownNow()
+        }
+    }
+
+    @Test
+    fun `Utilizing a Pinned ForkJoinWorker thread without an explicitly defined affinity`() {
+        val desiredTextMask = default.toString()
+        val desiredBinaryMask = default.mask()
+        val factory = SingleThreadedForkJoinWorkerThreadFactory()
+        val pool = ForkJoinPool(`1`, factory, null, false)
+        val action = unlatchAndSleepAction()
+        try {
+            pool.invoke(action)
+            latch.await()
+            val pinned = factory[pool]!!
+            pinned.nativeId().shouldNotBeNull()
+            pinned.affinity().mask() shouldBeEqualTo desiredBinaryMask
+            pinned.affinity().toString() shouldBeEqualTo desiredTextMask
+        } finally {
+            pool.shutdownNow()
         }
     }
 
@@ -113,6 +160,7 @@ class PinnedThreadTest {
         try {
             pinned.start()
             latch.await()
+            pinned.nativeId().shouldNotBeNull()
             pinned.affinity().mask() shouldBeEqualTo desiredBinaryMask
             pinned.affinity().toString() shouldBeEqualTo desiredTextMask
         } finally {
@@ -139,15 +187,38 @@ class PinnedThreadTest {
         }
     }
 
-    private class ExtendedPinnedThread(
-            affinity: AffinityDescriptor,
-            private val runnable: Runnable) : PinnedThread(affinity) {
-        override fun run() = runnable.run()
-    }
-
     private fun unlatchAndSleepRunnable(setup: Boolean = false) = Runnable {
         if (setup) (Thread.currentThread() as? PinnedThread)?.initialize()
         latch.countDown()
         runCatching { Thread.sleep(1000L) }
+    }
+
+    private fun unlatchAndSleepAction() = object : RecursiveAction() {
+        override fun compute() {
+            latch.countDown()
+            runCatching { Thread.sleep(1000L) }
+        }
+    }
+
+    private class ExtendedPinnedThread(
+        affinity: AffinityDescriptor,
+        private val runnable: Runnable
+    ) : PinnedThread(affinity) {
+        override fun run() = runnable.run()
+    }
+
+    private class SingleThreadedForkJoinWorkerThreadFactory(private val affinity: AffinityDescriptor? = null)
+        : ForkJoinPool.ForkJoinWorkerThreadFactory {
+
+        private val threads = mutableMapOf<ForkJoinPool, PinnedThread.ForkJoinWorker>()
+
+        operator fun get(pool: ForkJoinPool) = threads[pool]
+
+        override fun newThread(pool: ForkJoinPool) = threads
+            .computeIfAbsent(pool) {
+                affinity
+                    ?.let { PinnedThread.ForkJoinWorker(pool, it) }
+                    ?: PinnedThread.ForkJoinWorker(pool)
+            }
     }
 }

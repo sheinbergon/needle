@@ -16,7 +16,7 @@ class FixedAffinityPinnedThreadFactoryTest {
     private fun testPinnedThreadFactory(factory: PinnedThreadFactory) {
         val latch = CountDownLatch(`1`)
         val pinned = factory.newThread(task(latch))
-        pinned.start()
+        pinned?.start()
         latch.await()
     }
 

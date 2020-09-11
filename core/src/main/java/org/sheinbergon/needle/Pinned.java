@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-interface Pinned {
+public interface Pinned {
 
     @Accessors(fluent = true)
     final class Delegate implements Pinned {
