@@ -22,7 +22,7 @@ class PinnedThreadPoolExecutorTest {
     }
 
     private fun testPinnedThreadExecutor(concurrency: Int, pool: PinnedThreadPoolExecutor) = pool.use {
-        val visited = Sets.newConcurrentHashSet<PinnedThread>()
+        val visited = Sets.newConcurrentHashSet<Pinned>()
         val latch = CountDownLatch(concurrency)
         pool.corePoolSize shouldBeEqualTo concurrency
         val tasks = (`0` until concurrency).map { callableTask(latch, visited) }

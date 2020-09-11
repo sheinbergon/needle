@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.sheinbergon.needle.*
 import org.sheinbergon.needle.concurrent.util.ResettableOneOffLatch
+import java.util.concurrent.RecursiveAction
 
 class GovernedAffinityPinnedThreadFactoryTest {
 
@@ -13,6 +14,17 @@ class GovernedAffinityPinnedThreadFactoryTest {
     private fun unlatchAndSleepTask() = Runnable {
         latch.fire()
         runCatching { Thread.sleep(1000L) }
+    }
+
+    private inner class UnlatchAndSleepAction : RecursiveAction() {
+
+        lateinit var pinned: Pinned
+            private set
+
+        override fun compute() {
+            pinned = Thread.currentThread() as PinnedThread.ForkJoinWorker
+            unlatchAndSleepTask().run()
+        }
     }
 
     @BeforeEach
@@ -34,7 +46,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
     }
 
     @Test
-    fun `Initialize the factory using a binary a mask and alter the affinity of newly created pinned threads`() {
+    fun `Initialize the factory using a binary mask and alter the affinity of newly created pinned threads`() {
         val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
         val pinned1 = factory.newThread(unlatchAndSleepTask())
         pinned1!!.start()
@@ -70,5 +82,43 @@ class GovernedAffinityPinnedThreadFactoryTest {
         latch.await(false)
         Thread.sleep(2000L)
         factory.governed() shouldBeEqualTo `0`
+    }
+
+    @Test
+    fun `Initialize the factory without a mask and alter the affinity of created pinned fork-join threads`() {
+        val factory = GovernedAffinityPinnedThreadFactory()
+        PinnedForkJoinPool(`1`, factory).use { pool ->
+            val action = UnlatchAndSleepAction()
+            pool.execute(action)
+            latch.await(true)
+            val pinned = action.pinned
+            val original = pinned.affinity()
+            original.mask() shouldBeEqualTo default.mask()
+            factory.alter(negatedTestAffinityDescriptor, true)
+            val altered = pinned.affinity()
+            altered.mask() shouldBeEqualTo negatedBinaryTestMask
+        }
+    }
+
+    @Test
+    fun `Initialize the factory using a mask and alter the affinity of newly created pinned fork-join threads`() {
+        val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
+        PinnedForkJoinPool(`2`, factory).use { pool ->
+            val action1 = UnlatchAndSleepAction()
+            pool.execute(action1)
+            latch.await(true)
+            val pinned1 = action1.pinned
+            val original = pinned1.affinity()
+            original.mask() shouldBeEqualTo binaryTestMask
+            factory.alter(negatedTestAffinityDescriptor, false)
+            val unaltered = pinned1.affinity()
+            unaltered.mask() shouldBeEqualTo binaryTestMask
+            val action2 = UnlatchAndSleepAction()
+            pool.execute(action2)
+            latch.await(false)
+            val pinned2 = action2.pinned
+            val altered = pinned2.affinity()
+            altered.mask() shouldBeEqualTo negatedBinaryTestMask
+        }
     }
 }

@@ -167,8 +167,9 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
 
     private final class GovernedPinnedForkJoinWorkerThread extends PinnedThread.ForkJoinWorker {
 
-        GovernedPinnedForkJoinWorkerThread(final @Nonnull ForkJoinPool pool,
-                                           @Nonnull final AffinityDescriptor descriptor) {
+        GovernedPinnedForkJoinWorkerThread(
+                final @Nonnull ForkJoinPool pool,
+                final @Nonnull AffinityDescriptor descriptor) {
             super(pool, descriptor);
         }
 
@@ -178,6 +179,7 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
 
         @Override
         protected void onStart() {
+            super.onStart();
             pinnedThreadStartLatch.fire();
         }
 
