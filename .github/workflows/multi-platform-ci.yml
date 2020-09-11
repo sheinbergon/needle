@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - master
+      - wip*
 jobs:
   ci:
     name: run tests, style verification, measure code coverage and publish to nexus staging repository
