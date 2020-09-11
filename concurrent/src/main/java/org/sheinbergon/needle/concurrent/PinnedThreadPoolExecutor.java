@@ -28,8 +28,7 @@ public final class PinnedThreadPoolExecutor extends ThreadPoolExecutor implement
      * @param workQueue       the queue to use for holding tasks before they are
      *                        executed.  This queue will hold only the {@code Runnable}
      *                        tasks submitted by the {@code execute} method.
-     * @param factory         the {@code PinnedThread} factory to use when the executor
-     *                        creates a new thread
+     * @param factory         the {@code PinnedThreadFactory} used create affinity aware {@code PinnedThread} instances
      */
     public PinnedThreadPoolExecutor(
             final int corePoolSize,
@@ -44,7 +43,7 @@ public final class PinnedThreadPoolExecutor extends ThreadPoolExecutor implement
     /**
      * Static factory methods for affinity aware single-thread {@code ExecutorService} inception.
      *
-     * @param factory the {@code PinnedThreadFactory} used create affinity aware {@code PinnedThread} instances
+     * @param factory the {@code PinnedThreadFactory} used to create affinity aware {@code PinnedThread} instances
      * @return the affinity aware {@code ExecutorService}
      */
     public static ExecutorService newSinglePinnedThreadExecutor(final @Nonnull PinnedThreadFactory factory) {
