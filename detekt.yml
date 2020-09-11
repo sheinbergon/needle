@@ -243,11 +243,11 @@ formatting:
   Indentation:
     active: false
     autoCorrect: true
-    indentSize: 4
-    continuationIndentSize: 4
+    indentSize: 2
+    continuationIndentSize: 2
   MaximumLineLength:
     active: true
-    maxLineLength: 120
+    maxLineLength: 150
   ModifierOrdering:
     active: true
     autoCorrect: true
@@ -298,7 +298,7 @@ formatting:
     autoCorrect: true
     indentSize: 4
   SpacingAroundColon:
-    active: true
+    active: false
     autoCorrect: true
   SpacingAroundComma:
     active: true

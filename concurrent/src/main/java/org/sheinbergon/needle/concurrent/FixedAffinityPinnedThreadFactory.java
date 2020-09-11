@@ -5,6 +5,7 @@ import org.sheinbergon.needle.AffinityDescriptor;
 import org.sheinbergon.needle.PinnedThread;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ForkJoinPool;
 
 @RequiredArgsConstructor
 public final class FixedAffinityPinnedThreadFactory implements PinnedThreadFactory {
@@ -19,5 +20,10 @@ public final class FixedAffinityPinnedThreadFactory implements PinnedThreadFacto
     @Override
     public PinnedThread newThread(final @Nonnull Runnable r) {
         return new PinnedThread(r, affinity);
+    }
+
+    @Override
+    public PinnedThread.ForkJoinWorker newThread(final @Nonnull ForkJoinPool pool) {
+        return new PinnedThread.ForkJoinWorker(pool, affinity);
     }
 }

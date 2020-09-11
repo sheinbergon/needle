@@ -99,7 +99,6 @@ public class PinnedThread extends Thread implements Pinned {
     @Accessors(fluent = true)
     public static class ForkJoinWorker extends ForkJoinWorkerThread implements Pinned {
 
-
         /**
          * This delegate is responsible for performing affinity related operations.
          */
@@ -123,8 +122,7 @@ public class PinnedThread extends Thread implements Pinned {
          *
          * @param pool the pool this thread works in
          */
-        public ForkJoinWorker(
-                final @Nonnull ForkJoinPool pool) {
+        public ForkJoinWorker(final @Nonnull ForkJoinPool pool) {
             super(pool);
         }
 
@@ -143,7 +141,15 @@ public class PinnedThread extends Thread implements Pinned {
             delegate.affinity(affinityDescriptor);
         }
 
-        final void initialize() {
+        /**
+         * Ensures affinity initialization takes place prior to the processing of any submitted tasks.
+         * <p>
+         * If overriding this method, be sure to invoke {@code super.onStart()} before
+         * executing any additional functionality.
+         */
+        @Override
+        protected void onStart() {
+            super.onStart();
             delegate.initialize();
         }
 
@@ -152,7 +158,6 @@ public class PinnedThread extends Thread implements Pinned {
          */
         @Override
         public final void run() {
-            delegate.initialize();
             super.run();
         }
     }

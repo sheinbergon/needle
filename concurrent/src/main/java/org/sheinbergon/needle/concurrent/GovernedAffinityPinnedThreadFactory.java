@@ -3,12 +3,15 @@ package org.sheinbergon.needle.concurrent;
 import com.google.common.collect.Sets;
 import lombok.val;
 import org.sheinbergon.needle.AffinityDescriptor;
+import org.sheinbergon.needle.Pinned;
 import org.sheinbergon.needle.PinnedThread;
 import org.sheinbergon.needle.concurrent.util.ResettableOneOffLatch;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -20,7 +23,7 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
      * A collection storing the live {@code PinnedThread} instances managed by this factory.
      */
     @Nonnull
-    private final Set<PinnedThread> governed = Sets.newHashSet();
+    private final Set<Pinned> governed = Sets.newHashSet();
 
     /**
      * A lock used to synchronize accesses to the {@code GovernedAffinityPinnedThreadFactory#governed} collection.
@@ -98,7 +101,15 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
     @Override
     public PinnedThread newThread(final @Nonnull Runnable r) {
         pinnedThreadStartLatch.await(true);
-        val pinned = pinned(r);
+        val pinned = pinnedThread(r);
+        safe(() -> governed.add(pinned));
+        return pinned;
+    }
+
+    @Override
+    public PinnedThread.ForkJoinWorker newThread(final @Nonnull ForkJoinPool pool) {
+        pinnedThreadStartLatch.await(true);
+        val pinned = pinnedForkJoinWorkerThread(pool);
         safe(() -> governed.add(pinned));
         return pinned;
     }
@@ -112,26 +123,34 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
         }
     }
 
-    private PinnedThread pinned(final @Nonnull Runnable r) {
+    private PinnedThread pinnedThread(final @Nonnull Runnable r) {
         if (affinity != null) {
-            return new GovernedPinnedThread(r, affinity);
+            return new GovernedPinnedThread(r, Objects.requireNonNull(affinity));
         } else {
             return new GovernedPinnedThread(r);
         }
     }
 
-    private void alter(final @Nonnull Consumer<PinnedThread> fn) {
+    private PinnedThread.ForkJoinWorker pinnedForkJoinWorkerThread(final @Nonnull ForkJoinPool pool) {
+        if (affinity != null) {
+            return new GovernedPinnedForkJoinWorkerThread(pool, Objects.requireNonNull(affinity));
+        } else {
+            return new GovernedPinnedForkJoinWorkerThread(pool);
+        }
+    }
+
+    private void alter(final @Nonnull Consumer<Pinned> fn) {
         pinnedThreadStartLatch.await(false);
         safe(() -> governed.forEach(fn));
     }
 
     private final class GovernedPinnedThread extends PinnedThread {
 
-        GovernedPinnedThread(final @Nonnull Runnable target, @Nonnull final AffinityDescriptor descriptor) {
+        private GovernedPinnedThread(final @Nonnull Runnable target, @Nonnull final AffinityDescriptor descriptor) {
             super(target, descriptor);
         }
 
-        GovernedPinnedThread(final @Nonnull Runnable target) {
+        private GovernedPinnedThread(final @Nonnull Runnable target) {
             super(target);
         }
 
@@ -143,6 +162,28 @@ public final class GovernedAffinityPinnedThreadFactory implements PinnedThreadFa
             } finally {
                 safe(() -> governed.remove(this));
             }
+        }
+    }
+
+    private final class GovernedPinnedForkJoinWorkerThread extends PinnedThread.ForkJoinWorker {
+
+        GovernedPinnedForkJoinWorkerThread(final @Nonnull ForkJoinPool pool,
+                                           @Nonnull final AffinityDescriptor descriptor) {
+            super(pool, descriptor);
+        }
+
+        GovernedPinnedForkJoinWorkerThread(final @Nonnull ForkJoinPool pool) {
+            super(pool);
+        }
+
+        @Override
+        protected void onStart() {
+            pinnedThreadStartLatch.fire();
+        }
+
+        @Override
+        protected void onTermination(final @Nullable Throwable exception) {
+            safe(() -> governed.remove(this));
         }
     }
 }
