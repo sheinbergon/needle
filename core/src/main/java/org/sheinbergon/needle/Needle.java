@@ -30,12 +30,12 @@ public final class Needle {
 
     static void affinity(
             final @Nonnull AffinityDescriptor affinity,
-            final @Nonnull PinnedThread pinned) {
-        affinityResolver.thread(pinned.nativeId(), affinity);
+            final @Nonnull Object nativeId) {
+        affinityResolver.thread(nativeId, affinity);
     }
 
-    static AffinityDescriptor affinity(final @Nonnull PinnedThread pinned) {
-        return affinityResolver.thread(pinned.nativeId());
+    static AffinityDescriptor affinity(final @Nonnull Object nativeId) {
+        return affinityResolver.thread(nativeId);
     }
 
     static Object self() {

@@ -1,35 +1,18 @@
 package org.sheinbergon.needle;
 
-import lombok.Getter;
 import lombok.experimental.Accessors;
-import org.sheinbergon.needle.util.NeedleException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Objects;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 
 @Accessors(fluent = true)
-public class PinnedThread extends Thread {
-
-    @FunctionalInterface
-    private interface Initializer {
-        void invoke();
-    }
+public class PinnedThread extends Thread implements Pinned {
 
     /**
-     * The native platform thread identifier use for various affinity operations.
-     * <p>
-     * Note: {@code Object} is used here instead of a concrete type to allow simpler cross platform variance.
+     * This delegate is responsible for performing affinity related operations.
      */
-    @Getter
-    private volatile Object nativeId = null;
-
-    /**
-     * Initialization callback reference, will be used for affinity assignment call
-     * at the start of {@link PinnedThread#run()} execution.
-     */
-    @Nullable
-    private Initializer initializer = null;
+    private final Pinned.Delegate delegate = new Pinned.Delegate();
 
     /**
      * Initialize a {@code PinnedThread} using the owning process affinity.
@@ -62,7 +45,7 @@ public class PinnedThread extends Thread {
             final @Nonnull Runnable target,
             final @Nonnull AffinityDescriptor affinity) {
         super(target);
-        initializer = () -> affinity(affinity);
+        delegate.initializer(() -> affinity(affinity));
     }
 
     /**
@@ -77,54 +60,100 @@ public class PinnedThread extends Thread {
             final @Nonnull String name,
             final @Nonnull AffinityDescriptor affinity) {
         super(target, name);
-        initializer = () -> affinity(affinity);
+        delegate.initializer(() -> affinity(affinity));
     }
 
     protected PinnedThread(final @Nonnull AffinityDescriptor affinity) {
         super();
-        initializer = () -> affinity(affinity);
+        delegate.initializer(() -> affinity(affinity));
     }
 
-    /**
-     * Get this {@code PinnedThread} affinity setting.
-     *
-     * @return the current affinity setting
-     */
+    @Override
+    public final Object nativeId() {
+        return delegate.nativeId();
+    }
+
+    @Override
     public final AffinityDescriptor affinity() {
-        ensureInitialization();
-        return Needle.affinity(this);
+        return delegate.affinity();
     }
 
-    /**
-     * Set this {@code PinnedThread} affinity setting.
-     *
-     * @param affinityDescriptor the new affinity setting to apply
-     */
+    @Override
     public final void affinity(final @Nonnull AffinityDescriptor affinityDescriptor) {
-        ensureInitialization();
-        Needle.affinity(affinityDescriptor, this);
+        delegate.affinity(affinityDescriptor);
     }
 
-    protected final void initialize() {
-        nativeId = Needle.self();
-        Objects.requireNonNull(nativeId);
-        if (initializer != null) {
-            initializer.invoke();
-        }
+    final void initialize() {
+        delegate.initialize();
     }
 
     /**
-     *
+     * Ensure this thread's affinity is properly initialized prior to commencing its designated execution.
      */
     @Override
     public void run() {
-        initialize();
+        delegate.initialize();
         super.run();
     }
 
-    private void ensureInitialization() {
-        if (nativeId == null) {
-            throw new NeedleException("Pinned uninitialized, cannot access affinity information");
+    @Accessors(fluent = true)
+    public static class ForkJoinWorker extends ForkJoinWorkerThread implements Pinned {
+
+
+        /**
+         * This delegate is responsible for performing affinity related operations.
+         */
+        private final Pinned.Delegate delegate = new Pinned.Delegate();
+
+        /**
+         * Creates a {@code PinnedForkJoinWorkerThread} operating within the given pool with the given affinity setting.
+         *
+         * @param pool     the pool this thread works in
+         * @param affinity The affinity setting for this thread
+         */
+        public ForkJoinWorker(
+                final @Nonnull ForkJoinPool pool,
+                final @Nonnull AffinityDescriptor affinity) {
+            super(pool);
+            delegate.initializer(() -> affinity(affinity));
+        }
+
+        /**
+         * Creates a {@code PinnedForkJoinWorkerThread} operating within the given pool with the default affinity.
+         *
+         * @param pool the pool this thread works in
+         */
+        public ForkJoinWorker(
+                final @Nonnull ForkJoinPool pool) {
+            super(pool);
+        }
+
+        @Override
+        public final Object nativeId() {
+            return delegate.affinity();
+        }
+
+        @Override
+        public final AffinityDescriptor affinity() {
+            return delegate.affinity();
+        }
+
+        @Override
+        public final void affinity(final @Nonnull AffinityDescriptor affinityDescriptor) {
+            delegate.affinity(affinityDescriptor);
+        }
+
+        final void initialize() {
+            delegate.initialize();
+        }
+
+        /**
+         * Ensure this thread's affinity is properly initialized prior to commencing its designated execution.
+         */
+        @Override
+        public final void run() {
+            delegate.initialize();
+            super.run();
         }
     }
 }
