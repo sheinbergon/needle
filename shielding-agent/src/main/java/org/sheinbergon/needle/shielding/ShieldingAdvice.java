@@ -18,7 +18,7 @@ public final class ShieldingAdvice {
      */
     @Advice.OnMethodEnter
     public static void run() throws Exception {
-        System.out.println("AAAAA - " + Thread.currentThread().getName());
-        Needle.affinity(AffinityDescriptor.from(1L));
+        System.out.println("AAAAAAAAAAAAAAAA - " + Thread.currentThread().getName());
+        Needle.affinity(AffinityDescriptor.from(5L));
     }
 }

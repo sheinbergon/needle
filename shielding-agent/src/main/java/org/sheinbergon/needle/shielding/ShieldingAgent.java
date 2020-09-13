@@ -12,6 +12,7 @@ import org.sheinbergon.needle.Pinned;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
 import java.util.Map;
@@ -35,12 +36,9 @@ public final class ShieldingAgent {
     public static void premain(
             final String arguments,
             final Instrumentation instrumentation) throws Exception {
-        val temp = Files.createTempDirectory("tmp").toFile();
-        ClassInjector.UsingInstrumentation
-                .of(temp, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation)
-                .inject(Map.of(
-                        new TypeDescription.ForLoadedType(ShieldingAdvice.class),
-                        ClassFileLocator.ForClassLoader.read(ShieldingAdvice.class)));
+
+        val storage = Files.createTempDirectory("instrumentation").toFile();
+        setupBootstrapInjection(storage, instrumentation);
 
         new AgentBuilder.Default()
                 .disableClassFormatChanges()
@@ -48,56 +46,8 @@ public final class ShieldingAgent {
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
-                .with(new AgentBuilder.Listener() {
-                    @Override
-                    public void onDiscovery(final String typeName,
-                                            final ClassLoader classLoader,
-                                            final JavaModule module,
-                                            final boolean loaded) {
-//                        System.out.printf("Discovered - %s, %s, %s, %s%n",
-//                                typeName, classLoader, module, loaded);
-                    }
-
-                    @Override
-                    public void onTransformation(final TypeDescription typeDescription,
-                                                 final ClassLoader classLoader,
-                                                 final JavaModule module,
-                                                 final boolean loaded,
-                                                 final DynamicType dynamicType) {
-                        System.out.printf("Transformed - %s, %s, %s, %s, %s%n",
-                                typeDescription, classLoader, module, loaded, dynamicType);
-
-                    }
-
-                    @Override
-                    public void onIgnored(final TypeDescription typeDescription,
-                                          final ClassLoader classLoader,
-                                          final JavaModule module,
-                                          final boolean loaded) {
-//                        System.out.printf("Ignored - %s, %s, %s, %s%n",
-//                                typeDescription, classLoader, module, loaded);
-                    }
-
-                    @Override
-                    public void onError(final String typeName,
-                                        final ClassLoader classLoader,
-                                        final JavaModule module,
-                                        final boolean loaded,
-                                        final Throwable throwable) {
-                        System.out.printf("Error - %s, %s, %s, %s, %s%n",
-                                typeName, classLoader, module, loaded, throwable.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete(final String typeName,
-                                           final ClassLoader classLoader,
-                                           final JavaModule module,
-                                           final boolean loaded) {
-//                        System.out.printf("Completed - %s, %s, %s, %s%n",
-//                                typeName, classLoader, module, loaded);
-                    }
-                })
-                .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, temp))
+                .with(new Listener())
+                .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, storage))
                 .type(isSubTypeOf(Thread.class).or(is(Thread.class)))
                 .and(not(isSubTypeOf(Pinned.class)))
                 .transform(ShieldingAgent::transform)
@@ -110,5 +60,59 @@ public final class ShieldingAgent {
             final @Nullable ClassLoader classLoader,
             final @Nonnull JavaModule module) {
         return builder.visit(Advice.to(ShieldingAdvice.class).on(named("run")));
+    }
+
+    private static void setupBootstrapInjection(
+            final @Nonnull File storage,
+            final @Nonnull Instrumentation instrumentation) {
+        ClassInjector.UsingInstrumentation
+                .of(storage, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation)
+                .inject(Map.of(
+                        new TypeDescription.ForLoadedType(ShieldingAdvice.class),
+                        ClassFileLocator.ForClassLoader.read(ShieldingAdvice.class)));
+    }
+
+    private static class Listener implements AgentBuilder.Listener {
+
+        @Override
+        public void onTransformation(final TypeDescription typeDescription,
+                                     final ClassLoader classLoader,
+                                     final JavaModule module,
+                                     final boolean loaded,
+                                     final DynamicType dynamicType) {
+            System.out.printf("Transformed - %s, %s, %s, %s, %s%n",
+                    typeDescription, classLoader, module, loaded, dynamicType);
+        }
+
+        @Override
+        public void onError(final String typeName,
+                            final ClassLoader classLoader,
+                            final JavaModule module,
+                            final boolean loaded,
+                            final Throwable throwable) {
+            System.out.printf("Error - %s, %s, %s, %s, %s%n",
+                    typeName, classLoader, module, loaded, throwable.getMessage());
+        }
+
+        @Override
+        public void onDiscovery(final String typeName,
+                                final ClassLoader classLoader,
+                                final JavaModule module,
+                                final boolean loaded) {
+        }
+
+        @Override
+        public void onIgnored(final TypeDescription typeDescription,
+                              final ClassLoader classLoader,
+                              final JavaModule module,
+                              final boolean loaded) {
+        }
+
+        @Override
+        public void onComplete(final String typeName,
+                               final ClassLoader classLoader,
+                               final JavaModule module,
+                               final boolean loaded) {
+        }
     }
 }
