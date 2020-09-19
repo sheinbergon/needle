@@ -9,11 +9,15 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.utility.JavaModule;
 import org.sheinbergon.needle.Pinned;
+import org.sheinbergon.needle.shielding.util.AffinityGroups;
+import org.sheinbergon.needle.shielding.util.YamlCodec;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -24,7 +28,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 public final class ShieldingAgent {
-
 
     private ShieldingAgent() {
     }
@@ -37,7 +40,9 @@ public final class ShieldingAgent {
             final String arguments,
             final Instrumentation instrumentation) throws Exception {
 
-        val storage = Files.createTempDirectory("instrumentation").toFile();
+        agentConfiguration(arguments);
+
+        val storage = Files.createTempDirectory("shielding-agent-instrumentation").toFile();
         setupBootstrapInjection(storage, instrumentation);
 
         new AgentBuilder.Default()
@@ -70,6 +75,18 @@ public final class ShieldingAgent {
                 .inject(Map.of(
                         new TypeDescription.ForLoadedType(ShieldingAdvice.class),
                         ClassFileLocator.ForClassLoader.read(ShieldingAdvice.class)));
+    }
+
+    private static void agentConfiguration(final @Nullable String arguments) throws MalformedURLException {
+        ShieldingConfiguration configuration;
+        if (arguments != null) {
+            var url = ShieldingAgent.class.getResource(arguments);
+            url = (url != null) ? url : new URL(arguments);
+            configuration = YamlCodec.parseConfiguration(url);
+        } else {
+            configuration = ShieldingConfiguration.DEFAULT;
+        }
+        AffinityGroups.populate(configuration.affinityGroups());
     }
 
     private static class Listener implements AgentBuilder.Listener {
