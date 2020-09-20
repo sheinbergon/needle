@@ -22,7 +22,7 @@ public final class ShieldingAdvice {
     }
 
     /**
-     * @throws Exception
+     *
      */
     @Advice.OnMethodEnter
     public static void run() {

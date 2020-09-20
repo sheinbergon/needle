@@ -28,9 +28,16 @@ jar {
 }
 
 afterEvaluate {
+
+    task copyAgent(dependsOn: shadowJar, type: Copy) {
+        from "$buildDir/libs/"
+        into "$buildDir/resources/main"
+        include "*.jar"
+    }
+
     shadowJar {
 
-        classifier = ''
+        archiveClassifier.set('')
 
         from sourceSets.main.output
 
@@ -43,16 +50,26 @@ afterEvaluate {
                     "Agent-Class": "org.sheinbergon.needle.shielding.ShieldingAgent",
                     "Can-Redefine-Classes": true,
                     "Can-Retransform-Classes": true,
-                    "Boot-Class-Path": getArchiveName(),
+                    "Boot-Class-Path": archiveFileName.get(),
                     "Premain-Class": "org.sheinbergon.needle.shielding.ShieldingAgent")
         }
+
+        finalizedBy tasks.copyAgent
     }
+
+    test {
+        //forkEvery(1)
+        dependsOn tasks.copyAgent
+        systemProperties = [
+                "jdk.attach.allowAttachSelf": true,
+                "test.agent.jar.path"       : File.separator + tasks.shadowJar.archiveFileName.get()
+        ]
+    }
+
+    assemble.dependsOn shadowJar
+    build.dependsOn shadowJar
+    uploadArchives.dependsOn shadowJar
 }
-
-assemble.dependsOn shadowJar
-build.dependsOn shadowJar
-uploadArchives.dependsOn shadowJar
-
 //publishing {
 //    publications {
 //        shieldingAgent(MavenPublication) {

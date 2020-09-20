@@ -8,6 +8,7 @@ import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.utility.JavaModule;
+import org.apache.commons.lang3.ObjectUtils;
 import org.sheinbergon.needle.Pinned;
 import org.sheinbergon.needle.shielding.util.AffinityGroups;
 import org.sheinbergon.needle.shielding.util.YamlCodec;
@@ -20,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
@@ -39,12 +41,9 @@ public final class ShieldingAgent {
     public static void premain(
             final String arguments,
             final Instrumentation instrumentation) throws Exception {
-
-        agentConfiguration(arguments);
-
         val storage = Files.createTempDirectory("shielding-agent-instrumentation").toFile();
         setupBootstrapInjection(storage, instrumentation);
-
+        agentConfiguration(arguments);
         new AgentBuilder.Default()
                 .disableClassFormatChanges()
                 .ignore(nameStartsWith("net.bytebuddy."))
@@ -55,16 +54,42 @@ public final class ShieldingAgent {
                 .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, storage))
                 .type(isSubTypeOf(Thread.class).or(is(Thread.class)))
                 .and(not(isSubTypeOf(Pinned.class)))
-                .transform(ShieldingAgent::transform)
+                .transform(ShieldingAgent::premainTransform)
                 .installOn(instrumentation);
     }
 
-    private static DynamicType.Builder<?> transform(
+    /**
+     * @param arguments
+     * @param instrumentation
+     */
+    public static void agentmain(
+            final String arguments,
+            final Instrumentation instrumentation) throws Exception {
+        agentConfiguration(arguments);
+        new AgentBuilder.Default()
+                .disableClassFormatChanges()
+                .ignore(nameStartsWith("net.bytebuddy."))
+                .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
+                .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
+                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
+                .type(isSubTypeOf(Thread.class).or(is(Thread.class)))
+                .and(not(isSubTypeOf(Pinned.class)))
+                .transform(agentmainTransform())
+                .installOn(instrumentation);
+    }
+
+    private static DynamicType.Builder<?> premainTransform(
             final @Nonnull DynamicType.Builder<?> builder,
             final @Nonnull TypeDescription typeDescription,
             final @Nullable ClassLoader classLoader,
             final @Nonnull JavaModule module) {
         return builder.visit(Advice.to(ShieldingAdvice.class).on(named("run")));
+    }
+
+    private static AgentBuilder.Transformer agentmainTransform() {
+        return new AgentBuilder.Transformer.ForAdvice()
+                .include(ShieldingAgent.class.getClassLoader())
+                .advice(named("run"), ShieldingAdvice.class.getName());
     }
 
     private static void setupBootstrapInjection(
@@ -78,15 +103,14 @@ public final class ShieldingAgent {
     }
 
     private static void agentConfiguration(final @Nullable String arguments) throws MalformedURLException {
-        ShieldingConfiguration configuration;
+        Supplier<ShieldingConfiguration> supplier;
         if (arguments != null) {
-            var url = ShieldingAgent.class.getResource(arguments);
-            url = (url != null) ? url : new URL(arguments);
-            configuration = YamlCodec.parseConfiguration(url);
+            val url = ObjectUtils.firstNonNull(ShieldingAgent.class.getResource(arguments), new URL(arguments));
+            supplier = () -> YamlCodec.parseConfiguration(url);
         } else {
-            configuration = ShieldingConfiguration.DEFAULT;
+            supplier = () -> ShieldingConfiguration.DEFAULT;
         }
-        AffinityGroups.populate(configuration.affinityGroups());
+        AffinityGroups.setConfigurationSupplier(supplier);
     }
 
     private static class Listener implements AgentBuilder.Listener {

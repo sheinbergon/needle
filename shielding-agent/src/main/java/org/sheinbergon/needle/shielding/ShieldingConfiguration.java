@@ -26,7 +26,7 @@ public class ShieldingConfiguration {
     public static final ShieldingConfiguration DEFAULT = new ShieldingConfiguration()
             .affinityGroups(List.of(
                     new AffinityGroup()
-                            .affinity(AffinityDescriptor.from(NumberUtils.INTEGER_ZERO))
+                            .affinity(AffinityDescriptor.from(NumberUtils.LONG_ZERO))
                             .identifier("default")
                             .qualifier(AffinityGroup.Qualifier.NAME)
                             .matcher(new AffinityGroup.Matcher.Prefix()

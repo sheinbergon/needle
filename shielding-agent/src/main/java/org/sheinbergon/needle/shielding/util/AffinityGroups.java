@@ -6,9 +6,9 @@ import org.sheinbergon.needle.shielding.ShieldingConfiguration;
 import org.sheinbergon.needle.util.NeedleException;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public final class AffinityGroups {
 
@@ -25,26 +25,24 @@ public final class AffinityGroups {
             Sets.newConcurrentHashSet();
 
     /**
+     * a.
+     */
+    @Nonnull
+    private static volatile Supplier<ShieldingConfiguration> configurationSupplier =
+            () -> ShieldingConfiguration.DEFAULT;
+
+    /**
+     * '.
+     */
+    private static volatile boolean initialized = false;
+
+    /**
      * d.
      *
-     * @param groups
+     * @param supplier
      */
-    public static void populate(final @Nonnull Collection<ShieldingConfiguration.AffinityGroup> groups) {
-        for (ShieldingConfiguration.AffinityGroup group : groups) {
-            val qualifier = group.qualifier();
-            switch (qualifier) {
-                case NAME:
-                    NAME_MATCHING_AFFINITY_GROUPS.add(group);
-                    break;
-                case CLASS:
-                    CLASS_MATCHING_AFFINITY_GROUPS.add(group);
-                    break;
-                default:
-                    throw new NeedleException(
-                            String.format("Unsupported affinity group qualifier '%s'",
-                                    qualifier));
-            }
-        }
+    public static void setConfigurationSupplier(final @Nonnull Supplier<ShieldingConfiguration> supplier) {
+        AffinityGroups.configurationSupplier = supplier;
     }
 
     /**
@@ -54,6 +52,10 @@ public final class AffinityGroups {
      * @return a
      */
     public static Optional<ShieldingConfiguration.AffinityGroup> forThread(final @Nonnull Thread thread) {
+        if (!initialized) {
+            initialize();
+            initialized = true;
+        }
         return forThreadName(thread).or(() -> forThreadClass(thread));
     }
 
@@ -81,6 +83,25 @@ public final class AffinityGroups {
             }
         }
         return Optional.ofNullable(matched);
+    }
+
+    private static void initialize() {
+        val configuration = configurationSupplier.get();
+        for (ShieldingConfiguration.AffinityGroup group : configuration.affinityGroups()) {
+            val qualifier = group.qualifier();
+            switch (qualifier) {
+                case NAME:
+                    NAME_MATCHING_AFFINITY_GROUPS.add(group);
+                    break;
+                case CLASS:
+                    CLASS_MATCHING_AFFINITY_GROUPS.add(group);
+                    break;
+                default:
+                    throw new NeedleException(
+                            String.format("Unsupported affinity group qualifier '%s'",
+                                    qualifier));
+            }
+        }
     }
 
     private AffinityGroups() {
