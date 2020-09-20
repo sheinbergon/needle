@@ -5,15 +5,7 @@ import net.bytebuddy.asm.Advice;
 import org.sheinbergon.needle.Needle;
 import org.sheinbergon.needle.shielding.util.AffinityGroups;
 
-import java.util.function.Consumer;
-
 public final class ShieldingAdvice {
-
-    /**
-     * a.
-     */
-    public static final Consumer<ShieldingConfiguration.AffinityGroup> AFFINITY_SETTER =
-            affinityGroup -> Needle.affinity(affinityGroup.affinity());
 
     /**
      *
@@ -26,7 +18,11 @@ public final class ShieldingAdvice {
      */
     @Advice.OnMethodEnter
     public static void run() {
-        val group = AffinityGroups.forThread(Thread.currentThread());
-        group.ifPresent(AFFINITY_SETTER);
+        try {
+            val group = AffinityGroups.forThread(Thread.currentThread());
+            Needle.affinity(group.affinity());
+        } catch (Throwable throwable) {
+            //
+        }
     }
 }

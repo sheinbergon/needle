@@ -1,0 +1,14 @@
+defaultAffinity: 0
+affinityGroups:
+  - identifier: test-name-prefix
+    affinity: "0"
+    qualifier: NAME
+    matcher:
+      type: PREFIX
+      prefix: "shielding-thread"
+  - identifier: test-class-regex
+    affinity: 2
+    qualifier: CLASS
+    matcher:
+      type: REGEX
+      pattern: "org\\.sheinbergon\\..+ShieldingThread.*"

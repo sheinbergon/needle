@@ -1,7 +1,0 @@
-affinityGroups:
-  - identifier: default
-    affinity: 0
-    matcher:
-      type: PREFIX
-      qualifier: NAME
-      prefix: ""

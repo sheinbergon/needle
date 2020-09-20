@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 public final class YamlCodec {
 
@@ -33,6 +34,7 @@ public final class YamlCodec {
             .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
             .addMixIn(AffinityDescriptor.class, AffinityDescriptorMixIn.class)
+            .addMixIn(Pattern.class, RegexPatternMixIn.class)
             .readerFor(ShieldingConfiguration.class);
 
     /**
@@ -53,6 +55,10 @@ public final class YamlCodec {
     private interface AffinityDescriptorMixIn {
     }
 
+    @JsonDeserialize(using = RegexPatternDeserializer.class)
+    private interface RegexPatternMixIn {
+    }
+
     private static class AffinityDescriptorDeserializer extends JsonDeserializer<AffinityDescriptor> {
 
         @Override
@@ -70,6 +76,18 @@ public final class YamlCodec {
                         String.format("Unsupported affinity descriptor value node type - %s",
                                 node.getClass().getSimpleName()));
             }
+        }
+    }
+
+    private static class RegexPatternDeserializer extends JsonDeserializer<Pattern> {
+
+        @Override
+        public Pattern deserialize(
+                final JsonParser parser,
+                final DeserializationContext context) throws IOException {
+            val codec = parser.getCodec();
+            val node = (JsonNode) codec.readTree(parser);
+            return Pattern.compile(node.asText());
         }
     }
 

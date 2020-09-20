@@ -8,7 +8,6 @@ import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.utility.JavaModule;
-import org.apache.commons.lang3.ObjectUtils;
 import org.sheinbergon.needle.Pinned;
 import org.sheinbergon.needle.shielding.util.AffinityGroups;
 import org.sheinbergon.needle.shielding.util.YamlCodec;
@@ -44,17 +43,16 @@ public final class ShieldingAgent {
         val storage = Files.createTempDirectory("shielding-agent-instrumentation").toFile();
         setupBootstrapInjection(storage, instrumentation);
         agentConfiguration(arguments);
-        new AgentBuilder.Default()
+        val builder = new AgentBuilder.Default()
                 .disableClassFormatChanges()
                 .ignore(nameStartsWith("net.bytebuddy."))
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
                 .with(new Listener())
-                .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, storage))
-                .type(isSubTypeOf(Thread.class).or(is(Thread.class)))
-                .and(not(isSubTypeOf(Pinned.class)))
-                .transform(ShieldingAgent::premainTransform)
+                .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, storage));
+        val narrowable = matchers(builder);
+        narrowable.transform(ShieldingAgent::premainTransform)
                 .installOn(instrumentation);
     }
 
@@ -66,16 +64,22 @@ public final class ShieldingAgent {
             final String arguments,
             final Instrumentation instrumentation) throws Exception {
         agentConfiguration(arguments);
-        new AgentBuilder.Default()
+        val builder = new AgentBuilder.Default()
                 .disableClassFormatChanges()
                 .ignore(nameStartsWith("net.bytebuddy."))
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
-                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
-                .type(isSubTypeOf(Thread.class).or(is(Thread.class)))
-                .and(not(isSubTypeOf(Pinned.class)))
-                .transform(agentmainTransform())
+                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE);
+        val narrowable = matchers(builder);
+        narrowable.transform(agentmainTransform())
                 .installOn(instrumentation);
+
+    }
+
+    private static AgentBuilder.Identified.Narrowable matchers(
+            final @Nonnull AgentBuilder builder) {
+        return builder.type(isSubTypeOf(Thread.class).or(is(Thread.class)))
+                .and(not(isSubTypeOf(Pinned.class)));
     }
 
     private static DynamicType.Builder<?> premainTransform(
@@ -105,7 +109,7 @@ public final class ShieldingAgent {
     private static void agentConfiguration(final @Nullable String arguments) throws MalformedURLException {
         Supplier<ShieldingConfiguration> supplier;
         if (arguments != null) {
-            val url = ObjectUtils.firstNonNull(ShieldingAgent.class.getResource(arguments), new URL(arguments));
+            val url = new URL(arguments);
             supplier = () -> YamlCodec.parseConfiguration(url);
         } else {
             supplier = () -> ShieldingConfiguration.DEFAULT;

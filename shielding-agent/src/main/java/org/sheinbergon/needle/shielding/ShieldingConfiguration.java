@@ -6,12 +6,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import org.apache.commons.lang3.StringUtils;
+import lombok.experimental.Accessors;;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sheinbergon.needle.AffinityDescriptor;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -21,16 +21,10 @@ import java.util.regex.Pattern;
 public class ShieldingConfiguration {
 
     /**
-     *
+     * a.
      */
     public static final ShieldingConfiguration DEFAULT = new ShieldingConfiguration()
-            .affinityGroups(List.of(
-                    new AffinityGroup()
-                            .affinity(AffinityDescriptor.from(NumberUtils.LONG_ZERO))
-                            .identifier("default")
-                            .qualifier(AffinityGroup.Qualifier.NAME)
-                            .matcher(new AffinityGroup.Matcher.Prefix()
-                                    .prefix(StringUtils.EMPTY))));
+            .defaultAffinity(AffinityDescriptor.from(NumberUtils.LONG_ZERO));
 
     @Data
     @NoArgsConstructor
@@ -105,12 +99,12 @@ public class ShieldingConfiguration {
         /**
          * .
          */
-        @Nonnull
+        @Nullable
         private Qualifier qualifier;
         /**
          * .
          */
-        @Nonnull
+        @Nullable
         private Matcher matcher;
         /**
          * .
@@ -131,6 +125,12 @@ public class ShieldingConfiguration {
     /**
      * .
      */
-    @Nonnull
+    @Nullable
     private List<AffinityGroup> affinityGroups;
+
+    /**
+     * .
+     */
+    @Nonnull
+    private AffinityDescriptor defaultAffinity;
 }

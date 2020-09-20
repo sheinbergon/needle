@@ -1,28 +1,35 @@
 package org.sheinbergon.needle.shielding.util;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import lombok.val;
+import org.apache.commons.lang3.ObjectUtils;
 import org.sheinbergon.needle.shielding.ShieldingConfiguration;
 import org.sheinbergon.needle.util.NeedleException;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 
 public final class AffinityGroups {
 
     /**
-     * a.
+     *
      */
-    private static final Set<ShieldingConfiguration.AffinityGroup> CLASS_MATCHING_AFFINITY_GROUPS =
-            Sets.newConcurrentHashSet();
+    private static final String DEFAULT_AFFINITY_GROUP_IDENTIFIER = "default";
 
     /**
      * a.
      */
-    private static final Set<ShieldingConfiguration.AffinityGroup> NAME_MATCHING_AFFINITY_GROUPS =
-            Sets.newConcurrentHashSet();
+    private static final List<ShieldingConfiguration.AffinityGroup> CLASS_MATCHING_AFFINITY_GROUPS =
+            Lists.newArrayList();
+
+    /**
+     * a.
+     */
+    private static final List<ShieldingConfiguration.AffinityGroup> NAME_MATCHING_AFFINITY_GROUPS =
+            Lists.newArrayList();
 
     /**
      * a.
@@ -35,6 +42,12 @@ public final class AffinityGroups {
      * '.
      */
     private static volatile boolean initialized = false;
+
+
+    /**
+     * a.
+     */
+    private static ShieldingConfiguration.AffinityGroup defaultAffinityGroup = null;
 
     /**
      * d.
@@ -51,12 +64,15 @@ public final class AffinityGroups {
      * @param thread
      * @return a
      */
-    public static Optional<ShieldingConfiguration.AffinityGroup> forThread(final @Nonnull Thread thread) {
+    @Nonnull
+    public static ShieldingConfiguration.AffinityGroup forThread(final @Nonnull Thread thread) {
         if (!initialized) {
             initialize();
             initialized = true;
         }
-        return forThreadName(thread).or(() -> forThreadClass(thread));
+        return forThreadName(thread)
+                .or(() -> forThreadClass(thread))
+                .orElse(defaultAffinityGroup);
     }
 
     @Nonnull
@@ -74,7 +90,7 @@ public final class AffinityGroups {
     @Nonnull
     private static Optional<ShieldingConfiguration.AffinityGroup> forTarget(
             final @Nonnull String target,
-            final @Nonnull Set<ShieldingConfiguration.AffinityGroup> affinityGroups) {
+            final @Nonnull Collection<ShieldingConfiguration.AffinityGroup> affinityGroups) {
         ShieldingConfiguration.AffinityGroup matched = null;
         for (ShieldingConfiguration.AffinityGroup group : affinityGroups) {
             if (group.matches(target)) {
@@ -87,7 +103,9 @@ public final class AffinityGroups {
 
     private static void initialize() {
         val configuration = configurationSupplier.get();
-        for (ShieldingConfiguration.AffinityGroup group : configuration.affinityGroups()) {
+        defaultAffinityGroup = defaultAffinityGroup(configuration);
+        val affinityGroups = affinityGroups(configuration);
+        for (ShieldingConfiguration.AffinityGroup group : affinityGroups) {
             val qualifier = group.qualifier();
             switch (qualifier) {
                 case NAME:
@@ -102,6 +120,20 @@ public final class AffinityGroups {
                                     qualifier));
             }
         }
+    }
+
+    @Nonnull
+    private static ShieldingConfiguration.AffinityGroup defaultAffinityGroup(
+            final @Nonnull ShieldingConfiguration configuration) {
+        return new ShieldingConfiguration.AffinityGroup()
+                .identifier(DEFAULT_AFFINITY_GROUP_IDENTIFIER)
+                .affinity(configuration.defaultAffinity());
+    }
+
+    @Nonnull
+    private static List<ShieldingConfiguration.AffinityGroup> affinityGroups(
+            final @Nonnull ShieldingConfiguration configuration) {
+        return ObjectUtils.defaultIfNull(configuration.affinityGroups(), List.of());
     }
 
     private AffinityGroups() {

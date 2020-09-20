@@ -2,3 +2,5 @@ coverage:
   precision: 2
   round: up
   range: "75..95"
+ignore:
+  - "shielding-agent/**/*"
