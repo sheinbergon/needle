@@ -1,3 +1,5 @@
+import com.sun.security.auth.module.UnixSystem
+
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
@@ -31,7 +33,7 @@ afterEvaluate {
 
     task copyAgent(dependsOn: shadowJar, type: Copy) {
         from "$buildDir/libs/"
-        into "$buildDir/resources/main"
+        into "$buildDir/resources/test"
         include "*.jar"
     }
 
@@ -62,7 +64,7 @@ afterEvaluate {
         dependsOn tasks.copyAgent
         systemProperties = [
                 "jdk.attach.allowAttachSelf": true,
-                "test.agent.jar.path"       : File.separator + tasks.shadowJar.archiveFileName.get()
+                "test.agent.jar.path"       : "/${tasks.shadowJar.archiveFileName.get()}"
         ]
     }
 
