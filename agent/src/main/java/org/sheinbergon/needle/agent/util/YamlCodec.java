@@ -1,4 +1,4 @@
-package org.sheinbergon.needle.shielding.util;
+package org.sheinbergon.needle.agent.util;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,11 +14,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.val;
 import org.sheinbergon.needle.AffinityDescriptor;
-import org.sheinbergon.needle.shielding.ShieldingConfiguration;
+import org.sheinbergon.needle.agent.NeedleAgentConfiguration;
 import org.sheinbergon.needle.util.NeedleException;
 
 import javax.annotation.Nonnull;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -26,7 +25,7 @@ import java.util.regex.Pattern;
 public final class YamlCodec {
 
     /**
-     *
+     * Configuration deserialization jackson {@link ObjectReader} settings.
      */
     private static final ObjectReader JACKSON = new ObjectMapper(new YAMLFactory())
             .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
@@ -35,19 +34,19 @@ public final class YamlCodec {
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
             .addMixIn(AffinityDescriptor.class, AffinityDescriptorMixIn.class)
             .addMixIn(Pattern.class, RegexPatternMixIn.class)
-            .readerFor(ShieldingConfiguration.class);
+            .readerFor(NeedleAgentConfiguration.class);
 
     /**
-     * @param url - fsf
-     * @return fdsf
-     * @throws NeedleException - fsd
+     * @param url Agent configuration file URL.
+     * @return Deserialized {@link NeedleAgentConfiguration} instance.
+     * @throws NeedleAgentException - in case of configuration yaml parsing error.
      */
     @Nonnull
-    public static ShieldingConfiguration parseConfiguration(final @Nonnull URL url) throws NeedleException {
+    public static NeedleAgentConfiguration parseConfiguration(final @Nonnull URL url) throws NeedleException {
         try {
             return JACKSON.readValue(url);
         } catch (IOException iox) {
-            throw new RuntimeException(iox);
+            throw new NeedleAgentException(iox);
         }
     }
 

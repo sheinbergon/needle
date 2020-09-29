@@ -1,4 +1,4 @@
-package org.sheinbergon.needle.shielding;
+package org.sheinbergon.needle.agent;
 
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sheinbergon.needle.AffinityDescriptor;
 
@@ -18,12 +18,13 @@ import java.util.regex.Pattern;
 @Data
 @NoArgsConstructor
 @Accessors(fluent = true)
-public class ShieldingConfiguration {
+public class NeedleAgentConfiguration {
 
     /**
-     * a.
+     * Default configuration constructs, implies no-op affinity descriptor to the Needle framework.
+     * To be used in the absence of needle-agent configuration specification.
      */
-    public static final ShieldingConfiguration DEFAULT = new ShieldingConfiguration()
+    public static final NeedleAgentConfiguration DEFAULT = new NeedleAgentConfiguration()
             .defaultAffinity(AffinityDescriptor.from(NumberUtils.LONG_ZERO));
 
     @Data
@@ -55,7 +56,7 @@ public class ShieldingConfiguration {
             final class Prefix implements Matcher {
 
                 /**
-                 * .
+                 * Specifies the string prefix used to match given target strings.
                  */
                 @Nonnull
                 private String prefix;
@@ -73,7 +74,7 @@ public class ShieldingConfiguration {
             final class Regex implements Matcher {
 
                 /**
-                 * .
+                 * Specifies the regex expression used to match given target strings.
                  */
                 @Nonnull
                 private Pattern pattern;
@@ -97,25 +98,24 @@ public class ShieldingConfiguration {
         @Nonnull
         private AffinityDescriptor affinity;
         /**
-         * .
+         * The match target qualifier, used to extract the match target string from a given {@code Thread}.
          */
         @Nullable
         private Qualifier qualifier;
         /**
-         * .
+         * The matching logic encapsulation (determined upon deserialization).
          */
         @Nullable
         private Matcher matcher;
         /**
-         * .
+         * The affinity group's identifier, meant to be used for descriptive purposes only.
          */
         @Nonnull
         private String identifier;
 
-
         /**
-         * @param target
-         * @return dsa
+         * @param target the match target to be matched using this affinity group's {@link AffinityGroup#matcher}.
+         * @return A boolean value indicating whether or not this group matches the given target or not.
          */
         public boolean matches(final @Nonnull String target) {
             return matcher.matches(target);
@@ -123,13 +123,14 @@ public class ShieldingConfiguration {
     }
 
     /**
-     * .
+     * A collection of affinity group descriptors used to match different affinity descriptors to threads upon
+     * instantiation.
      */
     @Nullable
     private List<AffinityGroup> affinityGroups;
 
     /**
-     * .
+     * The default affinity to use for all threads without a precise {@link AffinityGroup} match.
      */
     @Nonnull
     private AffinityDescriptor defaultAffinity;

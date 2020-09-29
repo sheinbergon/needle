@@ -47,11 +47,11 @@ afterEvaluate {
 
         manifest {
             attributes(
-                    "Agent-Class": "org.sheinbergon.needle.shielding.ShieldingAgent",
+                    "Agent-Class": "org.sheinbergon.needle.agent.NeedleAgent",
                     "Can-Redefine-Classes": true,
                     "Can-Retransform-Classes": true,
                     "Boot-Class-Path": archiveFileName.get(),
-                    "Premain-Class": "org.sheinbergon.needle.shielding.ShieldingAgent")
+                    "Premain-Class": "org.sheinbergon.needle.agent.NeedleAgent")
         }
 
         finalizedBy tasks.copyAgent

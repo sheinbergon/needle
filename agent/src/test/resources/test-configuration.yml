@@ -5,10 +5,10 @@ affinityGroups:
     qualifier: NAME
     matcher:
       type: PREFIX
-      prefix: "shielding-thread"
+      prefix: "needle-agent-thread"
   - identifier: test-class-regex
     affinity: 2
     qualifier: CLASS
     matcher:
       type: REGEX
-      pattern: "org\\.sheinbergon\\..+ShieldingThread.*"
+      pattern: "org\\.sheinbergon\\..+NeedleAgentThread.*"

@@ -1,5 +1,6 @@
-package org.sheinbergon.needle.shielding;
+package org.sheinbergon.needle.agent;
 
+import lombok.extern.java.Log;
 import lombok.val;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -9,8 +10,8 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.utility.JavaModule;
 import org.sheinbergon.needle.Pinned;
-import org.sheinbergon.needle.shielding.util.AffinityGroups;
-import org.sheinbergon.needle.shielding.util.YamlCodec;
+import org.sheinbergon.needle.agent.util.AffinityGroupMatcher;
+import org.sheinbergon.needle.agent.util.YamlCodec;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,19 +29,22 @@ import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
-public final class ShieldingAgent {
+public final class NeedleAgent {
 
-    private ShieldingAgent() {
+    private NeedleAgent() {
     }
 
     /**
-     * @param arguments
-     * @param instrumentation
+     * Static agent loading endpoint.
+     *
+     * @param arguments       Agent configuration string, if specified, must be a valid JVM URL string pointing to the
+     *                        agent configuration file path (i.e. file:///some/file.yml).
+     * @param instrumentation JVM instrumentation interface
      */
     public static void premain(
             final String arguments,
             final Instrumentation instrumentation) throws Exception {
-        val storage = Files.createTempDirectory("shielding-agent-instrumentation").toFile();
+        val storage = Files.createTempDirectory("needle-agent-instrumentation").toFile();
         setupBootstrapInjection(storage, instrumentation);
         agentConfiguration(arguments);
         val builder = new AgentBuilder.Default()
@@ -49,16 +53,19 @@ public final class ShieldingAgent {
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
-                .with(new Listener())
+                .with(new LoggingListener())
                 .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, storage));
         val narrowable = matchers(builder);
-        narrowable.transform(ShieldingAgent::premainTransform)
+        narrowable.transform(NeedleAgent::premainTransform)
                 .installOn(instrumentation);
     }
 
     /**
-     * @param arguments
-     * @param instrumentation
+     * Dynamic agent loading endpoint.
+     *
+     * @param arguments       Agent configuration string, if specified, must be a valid JVM URL string pointing to the
+     *                        agent configuration file path (i.e. file:///some/file.yml).
+     * @param instrumentation JVM instrumentation interface
      */
     public static void agentmain(
             final String arguments,
@@ -87,13 +94,13 @@ public final class ShieldingAgent {
             final @Nonnull TypeDescription typeDescription,
             final @Nullable ClassLoader classLoader,
             final @Nonnull JavaModule module) {
-        return builder.visit(Advice.to(ShieldingAdvice.class).on(named("run")));
+        return builder.visit(Advice.to(AffinityAdvice.class).on(named("run")));
     }
 
     private static AgentBuilder.Transformer agentmainTransform() {
         return new AgentBuilder.Transformer.ForAdvice()
-                .include(ShieldingAgent.class.getClassLoader())
-                .advice(named("run"), ShieldingAdvice.class.getName());
+                .include(NeedleAgent.class.getClassLoader())
+                .advice(named("run"), AffinityAdvice.class.getName());
     }
 
     private static void setupBootstrapInjection(
@@ -102,22 +109,23 @@ public final class ShieldingAgent {
         ClassInjector.UsingInstrumentation
                 .of(storage, ClassInjector.UsingInstrumentation.Target.BOOTSTRAP, instrumentation)
                 .inject(Map.of(
-                        new TypeDescription.ForLoadedType(ShieldingAdvice.class),
-                        ClassFileLocator.ForClassLoader.read(ShieldingAdvice.class)));
+                        new TypeDescription.ForLoadedType(AffinityAdvice.class),
+                        ClassFileLocator.ForClassLoader.read(AffinityAdvice.class)));
     }
 
     private static void agentConfiguration(final @Nullable String arguments) throws MalformedURLException {
-        Supplier<ShieldingConfiguration> supplier;
+        Supplier<NeedleAgentConfiguration> supplier;
         if (arguments != null) {
             val url = new URL(arguments);
             supplier = () -> YamlCodec.parseConfiguration(url);
         } else {
-            supplier = () -> ShieldingConfiguration.DEFAULT;
+            supplier = () -> NeedleAgentConfiguration.DEFAULT;
         }
-        AffinityGroups.setConfigurationSupplier(supplier);
+        AffinityGroupMatcher.setConfigurationSupplier(supplier);
     }
 
-    private static class Listener implements AgentBuilder.Listener {
+    @Log
+    private static class LoggingListener implements AgentBuilder.Listener {
 
         @Override
         public void onTransformation(final TypeDescription typeDescription,
@@ -125,8 +133,8 @@ public final class ShieldingAgent {
                                      final JavaModule module,
                                      final boolean loaded,
                                      final DynamicType dynamicType) {
-            System.out.printf("Transformed - %s, %s, %s, %s, %s%n",
-                    typeDescription, classLoader, module, loaded, dynamicType);
+            log.fine(() -> String.format("Instrumentation transformation - %s, %s, %s, %s, %s",
+                    typeDescription, classLoader, module, loaded, dynamicType));
         }
 
         @Override
@@ -135,8 +143,8 @@ public final class ShieldingAgent {
                             final JavaModule module,
                             final boolean loaded,
                             final Throwable throwable) {
-            System.out.printf("Error - %s, %s, %s, %s, %s%n",
-                    typeName, classLoader, module, loaded, throwable.getMessage());
+            log.fine(() -> String.format("Instrumentation error - %s, %s, %s, %s, %s",
+                    typeName, classLoader, module, loaded, throwable.getMessage()));
         }
 
         @Override

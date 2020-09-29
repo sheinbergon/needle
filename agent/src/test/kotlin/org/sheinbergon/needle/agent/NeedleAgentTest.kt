@@ -1,4 +1,4 @@
-package org.sheinbergon.needle.shielding
+package org.sheinbergon.needle.agent
 
 import com.sun.tools.attach.VirtualMachine
 import org.amshove.kluent.shouldBeEqualTo
@@ -10,16 +10,16 @@ import org.sheinbergon.needle.`1L`
 import org.sheinbergon.needle.`2L`
 import java.nio.file.Paths
 
-class ShieldingAgentTest {
+class AffinityAgentTest {
 
     companion object {
         private val AGENT_PATH = System.getProperty("test.agent.jar.path")!!
 
-        private val CONFIGURATION_PATH = ShieldingAgentTest::class.java
+        private val CONFIGURATION_PATH = AffinityAgentTest::class.java
                 .getResource("/test-configuration.yml")
                 .toString()
 
-        private const val THREAD_NAME_PREFIX = "shielding-thread"
+        private const val THREAD_NAME_PREFIX = "needle-agent-thread"
 
         private val firstCoreAffinity = AffinityDescriptor.from(`1L`)
 
@@ -30,7 +30,7 @@ class ShieldingAgentTest {
 
     @BeforeEach
     fun setup() {
-        val agentUrl = ShieldingAgent::class.java.getResource(AGENT_PATH)
+        val agentUrl = NeedleAgent::class.java.getResource(AGENT_PATH)
         val agentFile = Paths.get(agentUrl.toURI()).toFile().absolutePath
         val pid = ProcessHandle.current().pid()
         val vm = VirtualMachine.attach(pid.toString())
@@ -52,7 +52,7 @@ class ShieldingAgentTest {
     @Test
     fun `Verify regex, thread-class based shielding agent configuration`() {
         var affinity: AffinityDescriptor? = null
-        val thread = ShieldingThread { affinity = Needle.affinity() }
+        val thread = NeedleAgentThread { affinity = Needle.affinity() }
         thread.start()
         thread.join()
         affinity!!.mask() shouldBeEqualTo secondCoreAffinity.mask()
@@ -70,4 +70,4 @@ class ShieldingAgentTest {
     }
 }
 
-class ShieldingThread(runnable: () -> Unit) : Thread(runnable)
+class NeedleAgentThread(runnable: () -> Unit) : Thread(runnable)
