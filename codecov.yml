@@ -3,4 +3,4 @@ coverage:
   round: up
   range: "75..95"
 ignore:
-  - "shielding-agent/**/*"
+  - "agent/**/*"
