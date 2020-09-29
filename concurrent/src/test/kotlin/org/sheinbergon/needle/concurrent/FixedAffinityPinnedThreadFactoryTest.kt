@@ -9,39 +9,39 @@ import java.util.concurrent.RecursiveAction
 
 class FixedAffinityPinnedThreadFactoryTest {
 
-    @Test
-    fun `Initialize the factory`() {
-        val factory = FixedAffinityPinnedThreadFactory(testAffinityDescriptor)
-        testPinnedThreadInception(factory)
-        testPinnedForkJoinWorkerThreadInception(factory)
-    }
+  @Test
+  fun `Initialize the factory`() {
+    val factory = FixedAffinityPinnedThreadFactory(testAffinityDescriptor)
+    testPinnedThreadInception(factory)
+    testPinnedForkJoinWorkerThreadInception(factory)
+  }
 
-    private fun testPinnedThreadInception(factory: PinnedThreadFactory) {
-        val latch = CountDownLatch(`1`)
-        val pinned = factory.newThread(task(latch))
-        pinned?.start()
-        latch.await()
-    }
+  private fun testPinnedThreadInception(factory: PinnedThreadFactory) {
+    val latch = CountDownLatch(`1`)
+    val pinned = factory.newThread(task(latch))
+    pinned?.start()
+    latch.await()
+  }
 
-    private fun testPinnedForkJoinWorkerThreadInception(factory: PinnedThreadFactory) {
-        val latch = CountDownLatch(`1`)
-        PinnedForkJoinPool(`1`, factory).use {
-            val action = action(latch)
-            it.submit(action)
-            latch.await()
-            Thread.sleep(5L)
-            action.isDone.shouldBeTrue()
-        }
+  private fun testPinnedForkJoinWorkerThreadInception(factory: PinnedThreadFactory) {
+    val latch = CountDownLatch(`1`)
+    PinnedForkJoinPool(`1`, factory).use {
+      val action = action(latch)
+      it.submit(action)
+      latch.await()
+      Thread.sleep(5L)
+      action.isDone.shouldBeTrue()
     }
+  }
 
-    private fun action(latch: CountDownLatch) = object : RecursiveAction() {
-        override fun compute() = task(latch).run()
-    }
+  private fun action(latch: CountDownLatch) = object : RecursiveAction() {
+    override fun compute() = task(latch).run()
+  }
 
-    private fun task(latch: CountDownLatch) = Runnable {
-        val self = Thread.currentThread() as Pinned
-        self.affinity().mask() shouldBeEqualTo binaryTestMask
-        self.affinity().toString() shouldBeEqualTo textTestMask
-        latch.countDown()
-    }
+  private fun task(latch: CountDownLatch) = Runnable {
+    val self = Thread.currentThread() as Pinned
+    self.affinity().mask() shouldBeEqualTo binaryTestMask
+    self.affinity().toString() shouldBeEqualTo textTestMask
+    latch.countDown()
+  }
 }

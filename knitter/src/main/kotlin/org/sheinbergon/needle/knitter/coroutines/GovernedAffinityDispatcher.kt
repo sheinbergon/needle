@@ -5,5 +5,5 @@ import org.sheinbergon.needle.AffinityDescriptor
 
 abstract class GovernedAffinityDispatcher : CoroutineDispatcher() {
 
-    abstract fun alter(affinity: AffinityDescriptor)
+  abstract fun alter(affinity: AffinityDescriptor)
 }

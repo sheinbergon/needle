@@ -15,18 +15,18 @@ private class GovernedAffinityDelegatingDispatcher(
     affinity: AffinityDescriptor
 ) : GovernedAffinityDispatcher() {
 
-    val factory: GovernedAffinityPinnedThreadFactory = GovernedAffinityPinnedThreadFactory(affinity)
+  val factory: GovernedAffinityPinnedThreadFactory = GovernedAffinityPinnedThreadFactory(affinity)
 
-    private val delegate: CoroutineDispatcher
+  private val delegate: CoroutineDispatcher
 
-    init {
-        val executor = PinnedThreadPoolExecutor.newFixedPinnedThreadPool(parallelism, factory)
-        delegate = executor.asCoroutineDispatcher()
-    }
+  init {
+    val executor = PinnedThreadPoolExecutor.newFixedPinnedThreadPool(parallelism, factory)
+    delegate = executor.asCoroutineDispatcher()
+  }
 
-    override fun alter(affinity: AffinityDescriptor) = factory.alter(affinity, true)
+  override fun alter(affinity: AffinityDescriptor) = factory.alter(affinity, true)
 
-    override fun dispatch(context: CoroutineContext, block: Runnable) = delegate.dispatch(context, block)
+  override fun dispatch(context: CoroutineContext, block: Runnable) = delegate.dispatch(context, block)
 }
 
 fun governedAffinitySingleThread(affinity: AffinityDescriptor): GovernedAffinityDispatcher =
@@ -39,7 +39,7 @@ fun fixedAffinitySingleThread(affinity: AffinityDescriptor) =
     fixedAffinityThreadPool(`1`, affinity)
 
 fun fixedAffinityThreadPool(parallelism: Int, affinity: AffinityDescriptor): CoroutineDispatcher {
-    val factory = FixedAffinityPinnedThreadFactory(affinity)
-    val executor = PinnedThreadPoolExecutor.newFixedPinnedThreadPool(parallelism, factory)
-    return executor.asCoroutineDispatcher()
+  val factory = FixedAffinityPinnedThreadFactory(affinity)
+  val executor = PinnedThreadPoolExecutor.newFixedPinnedThreadPool(parallelism, factory)
+  return executor.asCoroutineDispatcher()
 }

@@ -241,10 +241,10 @@ formatting:
     autoCorrect: true
     layout: 'idea'
   Indentation:
-    active: false
+    active: true
     autoCorrect: true
     indentSize: 2
-    continuationIndentSize: 2
+    continuationIndentSize: 4
   MaximumLineLength:
     active: true
     maxLineLength: 150
@@ -479,7 +479,7 @@ potential-bugs:
   UnreachableCode:
     active: true
   UnsafeCallOnNullableType:
-    active: true
+    active: false
   UnsafeCast:
     active: false
   UselessPostfixExpression:

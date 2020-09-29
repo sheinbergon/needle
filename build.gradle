@@ -68,20 +68,6 @@ subprojects {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     }
 
-    compileTestKotlin {
-        dependsOn('detekt')
-        kotlinOptions {
-            jvmTarget = 11
-        }
-    }
-
-    compileKotlin {
-        dependsOn('detekt')
-        kotlinOptions {
-            jvmTarget = 11
-        }
-    }
-
     jacoco {
         toolVersion = "0.8.5"
     }
@@ -120,6 +106,20 @@ subprojects {
     afterEvaluate {
 
         version = "$version-${nexus.target}"
+
+        compileTestKotlin {
+            dependsOn('detekt')
+            kotlinOptions {
+                jvmTarget = 11
+            }
+        }
+
+        compileKotlin {
+            dependsOn('detekt')
+            kotlinOptions {
+                jvmTarget = 11
+            }
+        }
 
         signing {
             required { nexus.target == 'RELEASE' }
