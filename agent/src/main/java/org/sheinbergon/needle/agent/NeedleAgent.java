@@ -12,6 +12,7 @@ import net.bytebuddy.utility.JavaModule;
 import org.sheinbergon.needle.Pinned;
 import org.sheinbergon.needle.agent.util.AffinityGroupMatcher;
 import org.sheinbergon.needle.agent.util.YamlCodec;
+import org.sheinbergon.needle.util.NeedleAffinity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static net.bytebuddy.matcher.ElementMatchers.is;
+import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -86,7 +88,8 @@ public final class NeedleAgent {
     private static AgentBuilder.Identified.Narrowable matchers(
             final @Nonnull AgentBuilder builder) {
         return builder.type(isSubTypeOf(Thread.class).or(is(Thread.class)))
-                .and(not(isSubTypeOf(Pinned.class)));
+                .and(not(isSubTypeOf(Pinned.class)))
+                .and(not(isAnnotatedWith(NeedleAffinity.class)));
     }
 
     private static DynamicType.Builder<?> premainTransform(
