@@ -35,9 +35,13 @@ public class NeedleAgentConfiguration {
         public enum Qualifier {
 
             /**
-             * a.
+             * Thread name based matching qualifier, as provided by {@link Thread#getName()}.
              */
-            NAME, CLASS;
+            NAME,
+            /**
+             * Thread class FQDN based matching qualifier, as provided by {@link Class#getName()}.
+             */
+            CLASS;
         }
 
         @Accessors(fluent = true, chain = true)
@@ -86,14 +90,17 @@ public class NeedleAgentConfiguration {
             }
 
             /**
-             * @param target
-             * @return das
+             * @param target the match target to be matched
+             * @return Boolean value indicating whether or not this {@code Matcher} implementation matches the given
+             * match target.
              */
             boolean matches(@Nonnull String target);
         }
 
         /**
-         * .
+         * This group inflated {@link AffinityDescriptor}, to be used to apply affinity settings via {@code Needle}.
+         *
+         * @see org.sheinbergon.needle.Needle
          */
         @Nonnull
         private AffinityDescriptor affinity;
