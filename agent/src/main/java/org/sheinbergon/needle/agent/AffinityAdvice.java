@@ -35,7 +35,6 @@ public final class AffinityAdvice {
                 Needle.affinity(group.affinity());
             }
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
             // Do nothing if any exception were thrown, for now.
             // TODO - Expose these via JUL logging (meant to bridged to other loggers)
         }

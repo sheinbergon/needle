@@ -76,10 +76,10 @@ public final class NeedleAgent {
         val builder = new AgentBuilder.Default()
                 .disableClassFormatChanges()
                 .ignore(nameStartsWith("net.bytebuddy."))
-                .with(new LoggingListener())
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
-                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE);
+                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
+                .with(new LoggingListener());
         val narrowable = matchers(builder);
         narrowable.transform(agentmainTransform())
                 .installOn(instrumentation);
@@ -137,8 +137,6 @@ public final class NeedleAgent {
                                      final JavaModule module,
                                      final boolean loaded,
                                      final DynamicType dynamicType) {
-            System.out.format("Instrumentation transformation - %s, %s, %s, %s, %s%n",
-                    typeDescription, classLoader, module, loaded, dynamicType);
             log.fine(() -> String.format("Instrumentation transformation - %s, %s, %s, %s, %s",
                     typeDescription, classLoader, module, loaded, dynamicType));
         }
