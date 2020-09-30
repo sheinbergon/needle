@@ -76,6 +76,7 @@ public final class NeedleAgent {
         val builder = new AgentBuilder.Default()
                 .disableClassFormatChanges()
                 .ignore(nameStartsWith("net.bytebuddy."))
+                .with(new LoggingListener())
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE);
@@ -87,9 +88,9 @@ public final class NeedleAgent {
 
     private static AgentBuilder.Identified.Narrowable matchers(
             final @Nonnull AgentBuilder builder) {
-        return builder.type(isSubTypeOf(Thread.class).or(is(Thread.class)))
-                .and(not(isSubTypeOf(Pinned.class)))
-                .and(not(isAnnotatedWith(NeedleAffinity.class)));
+        return builder.type(not(isSubTypeOf(Pinned.class))
+                .and(not(isAnnotatedWith(NeedleAffinity.class)))
+                .and(isSubTypeOf(Thread.class).or(is(Thread.class))));
     }
 
     private static DynamicType.Builder<?> premainTransform(
@@ -128,7 +129,7 @@ public final class NeedleAgent {
     }
 
     @Log
-    private static class LoggingListener implements AgentBuilder.Listener {
+    public static final class LoggingListener implements AgentBuilder.Listener {
 
         @Override
         public void onTransformation(final TypeDescription typeDescription,
@@ -136,6 +137,8 @@ public final class NeedleAgent {
                                      final JavaModule module,
                                      final boolean loaded,
                                      final DynamicType dynamicType) {
+            System.out.format("Instrumentation transformation - %s, %s, %s, %s, %s%n",
+                    typeDescription, classLoader, module, loaded, dynamicType);
             log.fine(() -> String.format("Instrumentation transformation - %s, %s, %s, %s, %s",
                     typeDescription, classLoader, module, loaded, dynamicType));
         }

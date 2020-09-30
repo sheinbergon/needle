@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.sheinbergon.needle.*
+import org.sheinbergon.needle.util.NeedleAffinity
 import java.nio.file.Paths
 
 class AffinityAgentTest {
@@ -36,7 +37,7 @@ class AffinityAgentTest {
   }
 
   @Test
-  fun `Verify prefix, thread-name based shielding agent configuration`() {
+  fun `Verify prefix, thread-name based agent configuration`() {
     lateinit var affinity: AffinityDescriptor
     val thread = Thread { affinity = Needle.affinity() }
     thread.name = "$THREAD_NAME_PREFIX-0"
@@ -47,7 +48,7 @@ class AffinityAgentTest {
   }
 
   @Test
-  fun `Verify regex, thread-class based shielding agent configuration`() {
+  fun `Verify regex, thread-class based agent configuration`() {
     lateinit var affinity: AffinityDescriptor
     val thread = NeedleAgentThread { affinity = Needle.affinity() }
     thread.start()
@@ -57,7 +58,7 @@ class AffinityAgentTest {
   }
 
   @Test
-  fun `Verify default affinity agent configuration`() {
+  fun `Verify default agent configuration`() {
     lateinit var affinity: AffinityDescriptor
     val thread = Thread { affinity = Needle.affinity() }
     thread.start()
@@ -65,6 +66,35 @@ class AffinityAgentTest {
     affinity.mask() shouldBeEqualTo defaultAffinity.mask()
     affinity.toString() shouldBeEqualTo defaultAffinity.toString()
   }
+
+
+  @Test
+  fun `Verify NeedleAffinity annotation agent exclusion`() {
+    lateinit var affinity: AffinityDescriptor
+    val thread = ExcludedAnnotatedNeedleAgentThread { affinity = Needle.affinity() }
+    thread.start()
+    thread.join()
+    affinity.mask() shouldBeEqualTo defaultAffinity.mask()
+    affinity.toString() shouldBeEqualTo defaultAffinity.toString()
+  }
+
+  @Test
+  fun `Verify PinnedThread subclassing agent exclusion`() {
+    lateinit var affinity: AffinityDescriptor
+    val thread = ExcludedPinnedNeedleAgentThread { affinity = Needle.affinity() }
+    thread.start()
+    thread.join()
+    affinity.mask() shouldBeEqualTo defaultAffinity.mask()
+    affinity.toString() shouldBeEqualTo defaultAffinity.toString()
+  }
 }
 
+// Included for affinity group due to class <-> regex matching heuristic
 class NeedleAgentThread(runnable: () -> Unit) : Thread(runnable)
+
+// Should have the same rules as above applied, but is excluded due parent class (PinnedThread, which implements Pinned)
+class ExcludedPinnedNeedleAgentThread(runnable: () -> Unit) : PinnedThread(runnable)
+
+// Should have the same rules as above applied, but is excluded due class annotation @NeedleAffinity
+@NeedleAffinity
+class ExcludedAnnotatedNeedleAgentThread(runnable: () -> Unit) : Thread(runnable)
