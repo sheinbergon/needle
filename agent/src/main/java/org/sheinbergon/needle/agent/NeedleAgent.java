@@ -1,6 +1,5 @@
 package org.sheinbergon.needle.agent;
 
-import lombok.extern.java.Log;
 import lombok.val;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -55,7 +54,6 @@ public final class NeedleAgent {
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
-                .with(new LoggingListener())
                 .with(new AgentBuilder.InjectionStrategy.UsingInstrumentation(instrumentation, storage));
         val narrowable = matchers(builder);
         narrowable.transform(NeedleAgent::premainTransform)
@@ -78,8 +76,7 @@ public final class NeedleAgent {
                 .ignore(nameStartsWith("net.bytebuddy."))
                 .with(AgentBuilder.TypeStrategy.Default.REDEFINE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
-                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
-                .with(new LoggingListener());
+                .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE);
         val narrowable = matchers(builder);
         narrowable.transform(agentmainTransform())
                 .installOn(instrumentation);
@@ -126,50 +123,5 @@ public final class NeedleAgent {
             supplier = () -> NeedleAgentConfiguration.DEFAULT;
         }
         AffinityGroupMatcher.setConfigurationSupplier(supplier);
-    }
-
-    @Log
-    public static final class LoggingListener implements AgentBuilder.Listener {
-
-        @Override
-        public void onTransformation(final TypeDescription typeDescription,
-                                     final ClassLoader classLoader,
-                                     final JavaModule module,
-                                     final boolean loaded,
-                                     final DynamicType dynamicType) {
-            log.fine(() -> String.format("Instrumentation transformation - %s, %s, %s, %s, %s",
-                    typeDescription, classLoader, module, loaded, dynamicType));
-        }
-
-        @Override
-        public void onError(final String typeName,
-                            final ClassLoader classLoader,
-                            final JavaModule module,
-                            final boolean loaded,
-                            final Throwable throwable) {
-            log.fine(() -> String.format("Instrumentation error - %s, %s, %s, %s, %s",
-                    typeName, classLoader, module, loaded, throwable.getMessage()));
-        }
-
-        @Override
-        public void onDiscovery(final String typeName,
-                                final ClassLoader classLoader,
-                                final JavaModule module,
-                                final boolean loaded) {
-        }
-
-        @Override
-        public void onIgnored(final TypeDescription typeDescription,
-                              final ClassLoader classLoader,
-                              final JavaModule module,
-                              final boolean loaded) {
-        }
-
-        @Override
-        public void onComplete(final String typeName,
-                               final ClassLoader classLoader,
-                               final JavaModule module,
-                               final boolean loaded) {
-        }
     }
 }
