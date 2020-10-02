@@ -41,6 +41,7 @@ public final class NeedleAgent {
      * @param arguments       Agent configuration string, if specified, must be a valid JVM URL string pointing to the
      *                        agent configuration file path (i.e. file:///some/file.yml).
      * @param instrumentation JVM instrumentation interface
+     * @throws Exception any execution error encountered during instrumentation setup
      */
     public static void premain(
             final String arguments,
@@ -66,6 +67,7 @@ public final class NeedleAgent {
      * @param arguments       Agent configuration string, if specified, must be a valid JVM URL string pointing to the
      *                        agent configuration file path (i.e. file:///some/file.yml).
      * @param instrumentation JVM instrumentation interface
+     * @throws Exception any execution error encountered during instrumentation setup
      */
     public static void agentmain(
             final String arguments,

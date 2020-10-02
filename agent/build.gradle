@@ -66,6 +66,7 @@ afterEvaluate {
         ]
     }
 
+    publish.dependsOn shadowJar
     assemble.dependsOn shadowJar
     build.dependsOn shadowJar
     uploadArchives.dependsOn shadowJar
