@@ -61,8 +61,8 @@ afterEvaluate {
         forkEvery(1)
         dependsOn tasks.copyAgent
         systemProperties = [
-                "jdk.attach.allowAttachSelf"            : true,
-                "test.agent.jar.path"                   : "/${tasks.shadowJar.archiveFileName.get()}"
+                "jdk.attach.allowAttachSelf": true,
+                "test.agent.jar.path"       : "/${tasks.shadowJar.archiveFileName.get()}"
         ]
     }
 
@@ -75,7 +75,7 @@ afterEvaluate {
 publishing {
     publications {
         agent(MavenPublication) {
-            from components.kotlin
+            project.shadow.component(it)
             artifactId = "needle-agent"
             artifact tasks.javadocJar
             artifact tasks.sourcesJar
