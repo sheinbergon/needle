@@ -15,18 +15,18 @@ fun pinnedThread(
     affinity: AffinityDescriptor = AffinityDescriptor.from(`0L`),
     block: () -> Unit
 ): PinnedThread {
-    val pinnedThread = PinnedThread(block::invoke, affinity)
-    if (isDaemon) {
-        pinnedThread.isDaemon = true
-    }
-    if (name != null) {
-        pinnedThread.name = name
-    }
-    if (contextClassLoader != null) {
-        pinnedThread.contextClassLoader = contextClassLoader
-    }
-    if (start) {
-        pinnedThread.start()
-    }
-    return pinnedThread
+  val pinnedThread = PinnedThread(block::invoke, affinity)
+  if (isDaemon) {
+    pinnedThread.isDaemon = true
+  }
+  if (name != null) {
+    pinnedThread.name = name
+  }
+  if (contextClassLoader != null) {
+    pinnedThread.contextClassLoader = contextClassLoader
+  }
+  if (start) {
+    pinnedThread.start()
+  }
+  return pinnedThread
 }

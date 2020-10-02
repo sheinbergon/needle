@@ -31,7 +31,7 @@ allprojects {
     ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     group "org.sheinbergon"
-    version "0.1.4"
+    version "0.2.0"
 
     sourceCompatibility = 11
 
@@ -66,20 +66,6 @@ subprojects {
         testImplementation "org.junit.jupiter:junit-jupiter:5.6.2"
         testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.6.2'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
-    }
-
-    compileTestKotlin {
-        dependsOn('detekt')
-        kotlinOptions {
-            jvmTarget = 11
-        }
-    }
-
-    compileKotlin {
-        dependsOn('detekt')
-        kotlinOptions {
-            jvmTarget = 11
-        }
     }
 
     jacoco {
@@ -120,6 +106,20 @@ subprojects {
     afterEvaluate {
 
         version = "$version-${nexus.target}"
+
+        compileTestKotlin {
+            dependsOn('detekt')
+            kotlinOptions {
+                jvmTarget = 11
+            }
+        }
+
+        compileKotlin {
+            dependsOn('detekt')
+            kotlinOptions {
+                jvmTarget = 11
+            }
+        }
 
         signing {
             required { nexus.target == 'RELEASE' }
