@@ -41,7 +41,7 @@ public final class AffinityAdvice {
     }
 
     /**
-     * Indicates whether this given thread should be exampt from affinity-group matching and setting.
+     * Indicates whether this given thread should be exempt from affinity-group matching and setting.
      * This method is public to satisfy byte-buddy class-loading requirements.
      *
      * @param thread The thread to inspect for exclusion from affinity-group matching.
