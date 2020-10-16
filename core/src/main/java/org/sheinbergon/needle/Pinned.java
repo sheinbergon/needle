@@ -9,8 +9,16 @@ import org.sheinbergon.needle.util.NeedleException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Optional;
 
 public interface Pinned {
+
+    @Nonnull
+    static Optional<Pinned> current() {
+        return Optional.of(Thread.currentThread())
+                .filter(Pinned.class::isInstance)
+                .map(Pinned.class::cast);
+    }
 
     @Accessors(fluent = true)
     final class Delegate implements Pinned {
