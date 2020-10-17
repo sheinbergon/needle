@@ -1,6 +1,12 @@
 coverage:
   precision: 2
   round: up
-  range: "75..95"
+  range: 75..95
+  status:
+    project:
+      enabled: yes
+      target: auto
+      threshold: 2.5%  # allow for 2.5% reduction of coverage without failing
+
 ignore:
   - "agent/**/*"
