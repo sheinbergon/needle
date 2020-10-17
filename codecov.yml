@@ -3,9 +3,13 @@ coverage:
   round: up
   range: 75..95
   status:
+    patch:
+      default:
+        target: auto
+        threshold: 2%
     project:
       default:
         target: auto
-        threshold: 2.5%  # allow for 2.5% reduction of coverage without failing
+        threshold: 2%
 ignore:
   - "agent/**/*"
