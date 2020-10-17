@@ -6,7 +6,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import org.sheinbergon.needle.AffinityDescriptor
 import org.sheinbergon.needle.concurrent.FixedAffinityPinnedThreadFactory
 import org.sheinbergon.needle.concurrent.GovernedAffinityPinnedThreadFactory
-import org.sheinbergon.needle.concurrent.PinnedThreadPoolExecutor
+import org.sheinbergon.needle.concurrent.PinnedExecutors
 import kotlin.coroutines.CoroutineContext
 
 
@@ -23,7 +23,7 @@ private class GovernedAffinityDelegatingDispatcher(
 
   init {
     factory = GovernedAffinityPinnedThreadFactory(affinity)
-    val executor = PinnedThreadPoolExecutor.newFixedPinnedThreadPool(parallelism, factory)
+    val executor = PinnedExecutors.newFixedPinnedThreadPool(parallelism, factory)
     delegate = executor.asCoroutineDispatcher()
   }
 
@@ -43,6 +43,6 @@ fun fixedAffinitySingleThread(affinity: AffinityDescriptor) =
 
 fun fixedAffinityThreadPool(parallelism: Int, affinity: AffinityDescriptor): CoroutineDispatcher {
   val factory = FixedAffinityPinnedThreadFactory(affinity)
-  val executor = PinnedThreadPoolExecutor.newFixedPinnedThreadPool(parallelism, factory)
+  val executor = PinnedExecutors.newFixedPinnedThreadPool(parallelism, factory)
   return executor.asCoroutineDispatcher()
 }

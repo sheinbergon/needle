@@ -3,7 +3,11 @@ package org.sheinbergon.needle.concurrent
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
+import org.sheinbergon.needle.`1`
+import org.sheinbergon.needle.Pinned
+import org.sheinbergon.needle.binaryTestMask
+import org.sheinbergon.needle.testAffinityDescriptor
+import org.sheinbergon.needle.textTestMask
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.RecursiveAction
 
@@ -25,7 +29,7 @@ class FixedAffinityPinnedThreadFactoryTest {
 
   private fun testPinnedForkJoinWorkerThreadInception(factory: PinnedThreadFactory) {
     val latch = CountDownLatch(`1`)
-    PinnedForkJoinPool(`1`, factory).use {
+    PinnedExecutors.newPinnedWorkStealingPool(`1`, factory).let {
       val action = action(latch)
       it.submit(action)
       latch.await()

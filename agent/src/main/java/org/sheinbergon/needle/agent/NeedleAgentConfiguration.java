@@ -26,12 +26,53 @@ public class NeedleAgentConfiguration {
      */
     public static final NeedleAgentConfiguration DEFAULT = new NeedleAgentConfiguration()
             .defaultAffinity(AffinityDescriptor.from(NumberUtils.LONG_ZERO));
+    /**
+     * A collection of affinity group descriptors used to match different affinity descriptors to threads upon
+     * instantiation.
+     */
+    @Nullable
+    private List<AffinityGroup> affinityGroups;
+    /**
+     * The default affinity to use for all threads without a precise {@link AffinityGroup} match.
+     */
+    @Nonnull
+    private AffinityDescriptor defaultAffinity;
 
     @Data
     @NoArgsConstructor
     @Accessors(fluent = true, chain = true)
     public static final class AffinityGroup {
 
+        /**
+         * This group inflated {@link AffinityDescriptor}, to be used to apply affinity settings via {@code Needle}.
+         *
+         * @see org.sheinbergon.needle.Needle
+         */
+        @Nonnull
+        private AffinityDescriptor affinity;
+        /**
+         * The match target qualifier, used to extract the match target string from a given {@code Thread}.
+         */
+        @Nullable
+        private Qualifier qualifier;
+        /**
+         * The matching logic encapsulation (determined upon deserialization).
+         */
+        @Nullable
+        private Matcher matcher;
+        /**
+         * The affinity group's identifier, meant to be used for descriptive purposes only.
+         */
+        @Nonnull
+        private String identifier;
+
+        /**
+         * @param target the match target to be matched using this affinity group's {@link AffinityGroup#matcher}.
+         * @return A boolean value indicating whether or not this group matches the given target or not.
+         */
+        public boolean matches(final @Nonnull String target) {
+            return matcher.matches(target);
+        }
         public enum Qualifier {
 
             /**
@@ -52,6 +93,13 @@ public class NeedleAgentConfiguration {
                 @JsonSubTypes.Type(value = Matcher.Regex.class, name = "REGEX")
         })
         public interface Matcher {
+
+            /**
+             * @param target the match target to be matched
+             * @return Boolean value indicating whether or not this {@code Matcher} implementation matches the given
+             * match target.
+             */
+            boolean matches(@Nonnull String target);
 
             @Data
             @NoArgsConstructor
@@ -88,57 +136,6 @@ public class NeedleAgentConfiguration {
                     return pattern.matcher(target).matches();
                 }
             }
-
-            /**
-             * @param target the match target to be matched
-             * @return Boolean value indicating whether or not this {@code Matcher} implementation matches the given
-             * match target.
-             */
-            boolean matches(@Nonnull String target);
-        }
-
-        /**
-         * This group inflated {@link AffinityDescriptor}, to be used to apply affinity settings via {@code Needle}.
-         *
-         * @see org.sheinbergon.needle.Needle
-         */
-        @Nonnull
-        private AffinityDescriptor affinity;
-        /**
-         * The match target qualifier, used to extract the match target string from a given {@code Thread}.
-         */
-        @Nullable
-        private Qualifier qualifier;
-        /**
-         * The matching logic encapsulation (determined upon deserialization).
-         */
-        @Nullable
-        private Matcher matcher;
-        /**
-         * The affinity group's identifier, meant to be used for descriptive purposes only.
-         */
-        @Nonnull
-        private String identifier;
-
-        /**
-         * @param target the match target to be matched using this affinity group's {@link AffinityGroup#matcher}.
-         * @return A boolean value indicating whether or not this group matches the given target or not.
-         */
-        public boolean matches(final @Nonnull String target) {
-            return matcher.matches(target);
         }
     }
-
-    /**
-     * A collection of affinity group descriptors used to match different affinity descriptors to threads upon
-     * instantiation.
-     */
-    @Nullable
-    private List<AffinityGroup> affinityGroups;
-
-    /**
-     * The default affinity to use for all threads without a precise {@link AffinityGroup} match.
-     */
-    @Nonnull
-    private AffinityDescriptor defaultAffinity;
 }

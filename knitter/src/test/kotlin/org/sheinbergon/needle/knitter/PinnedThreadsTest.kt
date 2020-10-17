@@ -3,7 +3,11 @@ package org.sheinbergon.needle.knitter
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
+import org.sheinbergon.needle.`1`
+import org.sheinbergon.needle.NEEDLE
+import org.sheinbergon.needle.binaryTestMask
+import org.sheinbergon.needle.default
+import org.sheinbergon.needle.testAffinityDescriptor
 import java.util.concurrent.CountDownLatch
 
 class PinnedThreadsTest {
@@ -12,11 +16,11 @@ class PinnedThreadsTest {
   fun `PinnedThread creation - Kotlin interface - Parameterized`() {
     val latch = CountDownLatch(`1`)
     val pinned = pinnedThread(
-        start = false,
-        name = NEEDLE,
-        contextClassLoader = ClassLoader.getPlatformClassLoader(),
-        isDaemon = true,
-        affinity = testAffinityDescriptor) {
+      start = false,
+      name = NEEDLE,
+      contextClassLoader = ClassLoader.getPlatformClassLoader(),
+      isDaemon = true,
+      affinity = testAffinityDescriptor) {
       latch.countDown()
       runCatching { Thread.sleep(1250) }
     }

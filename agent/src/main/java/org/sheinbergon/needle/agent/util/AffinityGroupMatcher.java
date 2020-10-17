@@ -59,6 +59,9 @@ public final class AffinityGroupMatcher {
      */
     private static NeedleAgentConfiguration.AffinityGroup defaultAffinityGroup = null;
 
+    private AffinityGroupMatcher() {
+    }
+
     /**
      * Match an affintiy group for a given {@code Thread} according to the following logic
      * <p>
@@ -140,8 +143,5 @@ public final class AffinityGroupMatcher {
     private static List<NeedleAgentConfiguration.AffinityGroup> affinityGroups(
             final @Nonnull NeedleAgentConfiguration configuration) {
         return ObjectUtils.defaultIfNull(configuration.affinityGroups(), List.of());
-    }
-
-    private AffinityGroupMatcher() {
     }
 }

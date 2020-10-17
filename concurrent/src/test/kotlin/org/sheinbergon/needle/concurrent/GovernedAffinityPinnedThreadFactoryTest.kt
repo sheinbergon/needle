@@ -3,8 +3,17 @@ package org.sheinbergon.needle.concurrent
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
+import org.sheinbergon.needle.`0`
+import org.sheinbergon.needle.`1`
+import org.sheinbergon.needle.`2`
+import org.sheinbergon.needle.Pinned
+import org.sheinbergon.needle.PinnedThread
+import org.sheinbergon.needle.binaryTestMask
 import org.sheinbergon.needle.concurrent.util.ResettableOneOffLatch
+import org.sheinbergon.needle.default
+import org.sheinbergon.needle.negatedBinaryTestMask
+import org.sheinbergon.needle.negatedTestAffinityDescriptor
+import org.sheinbergon.needle.testAffinityDescriptor
 import java.util.concurrent.RecursiveAction
 
 class GovernedAffinityPinnedThreadFactoryTest {
@@ -87,7 +96,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
   @Test
   fun `Initialize the factory without a mask and alter the affinity of created pinned fork-join threads`() {
     val factory = GovernedAffinityPinnedThreadFactory()
-    PinnedForkJoinPool(`1`, factory).use { pool ->
+    PinnedExecutors.newPinnedWorkStealingPool(`1`, factory).let { pool ->
       val action = UnlatchAndSleepAction()
       pool.execute(action)
       latch.await(true)
@@ -103,7 +112,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
   @Test
   fun `Initialize the factory using a mask and alter the affinity of newly created pinned fork-join threads`() {
     val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
-    PinnedForkJoinPool(`2`, factory).use { pool ->
+    PinnedExecutors.newPinnedWorkStealingPool(`2`, factory).let { pool ->
       val action1 = UnlatchAndSleepAction()
       pool.execute(action1)
       latch.await(true)

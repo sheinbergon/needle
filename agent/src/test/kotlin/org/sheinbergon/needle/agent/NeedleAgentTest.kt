@@ -4,7 +4,12 @@ import com.sun.tools.attach.VirtualMachine
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
+import org.sheinbergon.needle.AffinityDescriptor
+import org.sheinbergon.needle.Needle
+import org.sheinbergon.needle.PinnedThread
+import org.sheinbergon.needle.default
+import org.sheinbergon.needle.`1L`
+import org.sheinbergon.needle.`2L`
 import org.sheinbergon.needle.util.NeedleAffinity
 import java.nio.file.Paths
 
@@ -14,8 +19,8 @@ class AffinityAgentTest {
     private val AGENT_PATH = System.getProperty("test.agent.jar.path")!!
 
     private val CONFIGURATION_PATH = AffinityAgentTest::class.java
-        .getResource("/test-configuration.yml")
-        .toString()
+      .getResource("/test-configuration.yml")
+      .toString()
 
     private const val THREAD_NAME_PREFIX = "needle-agent-thread"
 

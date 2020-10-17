@@ -1,6 +1,15 @@
 coverage:
   precision: 2
   round: up
-  range: "75..95"
+  range: 75..95
+  status:
+    patch:
+      default:
+        target: auto
+        threshold: 2%
+    project:
+      default:
+        target: auto
+        threshold: 2%
 ignore:
   - "agent/**/*"
