@@ -11,16 +11,17 @@ class PinnedExecutorsTest {
 
   @Test
   fun `Single pinnned thread executor`() {
-    val executor = PinnedExecutors.newSinglePinnedThreadExecutor(TestMaskPinnedThreadFactory)
-    testPinnedThreadExecutor(`1`, executor)
+    PinnedExecutors
+        .newSinglePinnedThreadExecutor(TestMaskPinnedThreadFactory)
+        .let { testPinnedThreadExecutor(`1`, it) }
   }
 
   @Test
   fun `Fixed pinned thread pool executor`() {
-    val executor = PinnedExecutors.newFixedPinnedThreadPool(availableCores, TestMaskPinnedThreadFactory)
-    testPinnedThreadExecutor(availableCores, executor)
+    PinnedExecutors
+        .newFixedPinnedThreadPool(availableCores, TestMaskPinnedThreadFactory)
+        .let { testPinnedThreadExecutor(availableCores, it) }
   }
-
 
   @Test
   fun `Single pinned thread scheduled executor`() {
@@ -40,7 +41,7 @@ class PinnedExecutorsTest {
   fun `Fixed affinity PinnedForkJoinPool behavior`() {
     PinnedExecutors
         .newPinnedWorkStealingPool(availableCores, TestMaskPinnedThreadFactory)
-        .let { testPinnedThreadExecutor(availableCores, it) }
+        .let { testPinnedWorkStealingExecutor(availableCores, it) }
   }
 
   private fun testPinnedThreadExecutor(
