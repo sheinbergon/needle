@@ -6,6 +6,8 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sheinbergon/needle/multi-platform-ci?logo=github&style=for-the-badge)](https://github.com/sheinbergon/needle/actions?query=workflow%3Amulti-platform-ci)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/sheinbergon/needle?color=%2340E0D0&logo=github&style=for-the-badge)](https://github.com/sheinbergon/needle/releases/latest)
 [![Maven Central](https://img.shields.io/maven-central/v/org.sheinbergon/needle-core?color=Crimson&logo=Apache%20Maven&style=for-the-badge)](https://search.maven.org/search?q=g:org.sheinbergon%20a:needle*)
+[![Snyk](https://img.shields.io/snyk/vulnerabilities/github/sheinbergon/needle?color=%2340E0D0&label=Snyk&logo=snyk&logoColor=silver&style=for-the-badge)](https://snyk.io/test/github/sheinbergon/needle?targetFile=build.gradle)
+
 
 **Needle** provides feature rich core affinity support for the JVM, 
 focusing on ease of integration and extensibility  
