@@ -7,6 +7,5 @@ coverage:
       enabled: yes
       target: auto
       threshold: 2.5%  # allow for 2.5% reduction of coverage without failing
-
-ignore:
-  - "agent/**/*"
+  ignore:
+    - "agent/**/*"

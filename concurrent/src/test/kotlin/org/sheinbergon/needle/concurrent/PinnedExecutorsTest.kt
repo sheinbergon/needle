@@ -51,10 +51,7 @@ class PinnedExecutorsTest {
       .let { testPinnedWorkStealingExecutor(availableCores, it) }
   }
 
-  private fun testPinnedThreadExecutor(
-    concurrency: Int,
-    pool: ExecutorService
-  ) {
+  private fun testPinnedThreadExecutor(concurrency: Int, pool: ExecutorService) {
     val visited = Sets.newConcurrentHashSet<Pinned>()
     val latch = CountDownLatch(concurrency)
     val tasks = (`0` until concurrency).map { callableTask(latch, visited) }
@@ -63,12 +60,10 @@ class PinnedExecutorsTest {
     Thread.sleep(5L)
     futures.forEach { it.isDone shouldBe true }
     visited.size shouldBeEqualTo concurrency
+    pool.shutdown()
   }
 
-  private fun testScheduledPinnedThreadExecutor(
-    concurrency: Int,
-    scheduler: ScheduledExecutorService
-  ) {
+  private fun testScheduledPinnedThreadExecutor(concurrency: Int, scheduler: ScheduledExecutorService) {
     val visited = Sets.newConcurrentHashSet<Pinned>()
     val latch = CountDownLatch(concurrency)
     val futures = (`0` until concurrency)
@@ -78,6 +73,7 @@ class PinnedExecutorsTest {
     Thread.sleep(5L)
     visited.size shouldBeEqualTo concurrency
     futures.forEach { it.isDone shouldBeEqualTo true }
+    scheduler.shutdown()
   }
 
   private fun testPinnedWorkStealingExecutor(concurrency: Int, pool: ForkJoinPool) {
@@ -90,5 +86,6 @@ class PinnedExecutorsTest {
     Thread.sleep(5L)
     tasks.forEach { it.isDone shouldBe true }
     visited.size shouldBeEqualTo concurrency
+    pool.shutdown()
   }
 }
