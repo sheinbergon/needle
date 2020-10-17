@@ -201,24 +201,24 @@ class PinnedThreadTest {
   }
 
   private class ExtendedPinnedThread(
-      affinity: AffinityDescriptor,
-      private val runnable: Runnable
+    affinity: AffinityDescriptor,
+    private val runnable: Runnable
   ) : PinnedThread(affinity) {
     override fun run() = runnable.run()
   }
 
-  private class SingleThreadedForkJoinWorkerThreadFactory(private val affinity: AffinityDescriptor? = null)
-    : ForkJoinPool.ForkJoinWorkerThreadFactory {
+  private class SingleThreadedForkJoinWorkerThreadFactory(private val affinity: AffinityDescriptor? = null) :
+    ForkJoinPool.ForkJoinWorkerThreadFactory {
 
     private val threads = mutableMapOf<ForkJoinPool, PinnedThread.ForkJoinWorker>()
 
     operator fun get(pool: ForkJoinPool) = threads[pool]
 
     override fun newThread(pool: ForkJoinPool) = threads
-        .computeIfAbsent(pool) {
-          affinity
-              ?.let { PinnedThread.ForkJoinWorker(pool, it) }
-              ?: PinnedThread.ForkJoinWorker(pool)
-        }
+      .computeIfAbsent(pool) {
+        affinity
+          ?.let { PinnedThread.ForkJoinWorker(pool, it) }
+          ?: PinnedThread.ForkJoinWorker(pool)
+      }
   }
 }

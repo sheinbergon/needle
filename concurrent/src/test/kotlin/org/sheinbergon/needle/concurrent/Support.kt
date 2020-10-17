@@ -15,7 +15,7 @@ internal object TestMaskPinnedThreadFactory : PinnedThreadFactory {
 
 @Suppress("UNCHECKED_CAST")
 internal fun callableTask(latch: CountDownLatch, visited: MutableSet<Pinned>): Callable<Unit> =
-    Executors.callable { runnableTask(latch, visited).run() } as Callable<Unit>
+  Executors.callable { runnableTask(latch, visited).run() } as Callable<Unit>
 
 internal fun recursiveAction(latch: CountDownLatch, visited: MutableSet<Pinned>) = object : RecursiveAction() {
   override fun compute() = runnableTask(latch, visited).run()

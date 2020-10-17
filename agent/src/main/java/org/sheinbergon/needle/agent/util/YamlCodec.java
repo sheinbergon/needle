@@ -36,6 +36,9 @@ public final class YamlCodec {
             .addMixIn(Pattern.class, RegexPatternMixIn.class)
             .readerFor(NeedleAgentConfiguration.class);
 
+    private YamlCodec() {
+    }
+
     /**
      * @param url Agent configuration file URL.
      * @return Deserialized {@link NeedleAgentConfiguration} instance.
@@ -88,8 +91,5 @@ public final class YamlCodec {
             val node = (JsonNode) codec.readTree(parser);
             return Pattern.compile(node.asText());
         }
-    }
-
-    private YamlCodec() {
     }
 }

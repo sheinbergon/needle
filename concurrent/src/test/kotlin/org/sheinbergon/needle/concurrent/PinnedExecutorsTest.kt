@@ -12,36 +12,36 @@ class PinnedExecutorsTest {
   @Test
   fun `Single pinnned thread executor`() {
     PinnedExecutors
-        .newSinglePinnedThreadExecutor(TestMaskPinnedThreadFactory)
-        .let { testPinnedThreadExecutor(`1`, it) }
+      .newSinglePinnedThreadExecutor(TestMaskPinnedThreadFactory)
+      .let { testPinnedThreadExecutor(`1`, it) }
   }
 
   @Test
   fun `Fixed pinned thread pool executor`() {
     PinnedExecutors
-        .newFixedPinnedThreadPool(availableCores, TestMaskPinnedThreadFactory)
-        .let { testPinnedThreadExecutor(availableCores, it) }
+      .newFixedPinnedThreadPool(availableCores, TestMaskPinnedThreadFactory)
+      .let { testPinnedThreadExecutor(availableCores, it) }
   }
 
   @Test
   fun `Single pinned thread scheduled executor`() {
     PinnedExecutors
-        .newSinglePinnedThreadScheduledExecutor(TestMaskPinnedThreadFactory)
-        .let { testScheduledPinnedThreadExecutor(`1`, it) }
+      .newSinglePinnedThreadScheduledExecutor(TestMaskPinnedThreadFactory)
+      .let { testScheduledPinnedThreadExecutor(`1`, it) }
   }
 
   @Test
   fun `Pooled pinned thread scheduled executor`() {
     PinnedExecutors
-        .newScheduledPinnedThreadPool(availableCores, TestMaskPinnedThreadFactory)
-        .let { testScheduledPinnedThreadExecutor(availableCores, it) }
+      .newScheduledPinnedThreadPool(availableCores, TestMaskPinnedThreadFactory)
+      .let { testScheduledPinnedThreadExecutor(availableCores, it) }
   }
 
   @Test
   fun `Fixed affinity PinnedForkJoinPool behavior`() {
     PinnedExecutors
-        .newPinnedWorkStealingPool(availableCores, TestMaskPinnedThreadFactory)
-        .let { testPinnedWorkStealingExecutor(availableCores, it) }
+      .newPinnedWorkStealingPool(availableCores, TestMaskPinnedThreadFactory)
+      .let { testPinnedWorkStealingExecutor(availableCores, it) }
   }
 
   private fun testPinnedThreadExecutor(
@@ -65,8 +65,8 @@ class PinnedExecutorsTest {
     val visited = Sets.newConcurrentHashSet<Pinned>()
     val latch = CountDownLatch(concurrency)
     val futures = (`0` until concurrency)
-        .map { runnableTask(latch, visited) }
-        .map { scheduler.schedule(it, SCHEDULING_DELAY, TimeUnit.MILLISECONDS) }
+      .map { runnableTask(latch, visited) }
+      .map { scheduler.schedule(it, SCHEDULING_DELAY, TimeUnit.MILLISECONDS) }
     latch.await()
     Thread.sleep(5L)
     visited.size shouldBeEqualTo concurrency

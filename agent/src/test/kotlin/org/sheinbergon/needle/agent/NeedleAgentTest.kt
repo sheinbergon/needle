@@ -14,8 +14,8 @@ class AffinityAgentTest {
     private val AGENT_PATH = System.getProperty("test.agent.jar.path")!!
 
     private val CONFIGURATION_PATH = AffinityAgentTest::class.java
-        .getResource("/test-configuration.yml")
-        .toString()
+      .getResource("/test-configuration.yml")
+      .toString()
 
     private const val THREAD_NAME_PREFIX = "needle-agent-thread"
 

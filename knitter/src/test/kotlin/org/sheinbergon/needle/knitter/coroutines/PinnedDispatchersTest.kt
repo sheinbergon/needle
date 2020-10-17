@@ -43,34 +43,34 @@ class PinnedDispatchersTest {
   }
 
   private fun deferredAffinitySingleAsync(dispatcher: CoroutineDispatcher) =
-      GlobalScope.async(dispatcher) { Needle.affinity() }
+    GlobalScope.async(dispatcher) { Needle.affinity() }
 
   private fun deferredAffinityPoolAsync(cores: Int, dispatcher: CoroutineDispatcher) = (`1`..cores)
-      .map {
-        GlobalScope.async(dispatcher) {
-          Thread.currentThread() to Needle.affinity()
-        }
+    .map {
+      GlobalScope.async(dispatcher) {
+        Thread.currentThread() to Needle.affinity()
       }
+    }
 
   private suspend fun blockingAssertSingle(
-      deferred: Deferred<AffinityDescriptor>,
-      binaryMask: Long,
-      textMask: String
+    deferred: Deferred<AffinityDescriptor>,
+    binaryMask: Long,
+    textMask: String
   ) {
     val affinity = deferred.await()
     affinity.mask() shouldBeEqualTo binaryMask
-    affinity.toString() shouldBeEqualTo  textMask
+    affinity.toString() shouldBeEqualTo textMask
   }
 
   private suspend fun blockingAssertPool(
-      cores: Int,
-      deferred: List<Deferred<Pair<Thread, AffinityDescriptor>>>,
-      binaryMask: Long,
-      textMask: String
+    cores: Int,
+    deferred: List<Deferred<Pair<Thread, AffinityDescriptor>>>,
+    binaryMask: Long,
+    textMask: String
   ) {
     val results = deferred.awaitAll()
     val threads = results.mapTo(mutableSetOf(), Pair<Thread, *>::first)
-    threads.size shouldBeLessOrEqualTo  cores
+    threads.size shouldBeLessOrEqualTo cores
     results.forEach { (_, affinity) ->
       affinity.mask() shouldBeEqualTo binaryMask
       affinity.toString() shouldBeEqualTo textMask
