@@ -23,7 +23,7 @@ class AffinityAgentTest {
 
     private val secondCoreAffinity = AffinityDescriptor.from(`2L`)
 
-    private val defaultAffinity = org.sheinbergon.needle.default
+    private val defaultAffinity = default
   }
 
   @BeforeEach
@@ -32,7 +32,7 @@ class AffinityAgentTest {
     val agentFile = Paths.get(agentUrl.toURI()).toFile().absolutePath
     val pid = ProcessHandle.current().pid()
     val vm = VirtualMachine.attach(pid.toString())
-    vm.loadAgent(agentFile, CONFIGURATION_PATH);
+    vm.loadAgent(agentFile, CONFIGURATION_PATH)
     vm.detach()
   }
 
@@ -66,7 +66,6 @@ class AffinityAgentTest {
     affinity.mask() shouldBeEqualTo defaultAffinity.mask()
     affinity.toString() shouldBeEqualTo defaultAffinity.toString()
   }
-
 
   @Test
   fun `Verify NeedleAffinity annotation agent exclusion`() {

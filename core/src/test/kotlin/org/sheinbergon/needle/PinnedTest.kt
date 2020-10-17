@@ -1,4 +1,4 @@
-package org.sheinbergon.needle;
+package org.sheinbergon.needle
 
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
