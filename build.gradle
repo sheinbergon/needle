@@ -7,7 +7,7 @@ plugins {
     id 'maven-publish'
     id 'io.codearte.nexus-staging' version '0.22.0'
     id "org.jetbrains.kotlin.jvm" version "1.4.10"
-    id "io.gitlab.arturbosch.detekt" version "1.10.0"
+    id "io.gitlab.arturbosch.detekt" version "1.14.1"
     id 'io.franzbecker.gradle-lombok' version '3.3.0'
 }
 
@@ -91,13 +91,13 @@ subprojects {
     }
 
     checkstyle {
-        toolVersion '8.34'
+        toolVersion '8.36.2'
         configFile file("$rootDir/checkstyle.xml")
         configDir rootDir
     }
 
     detekt {
-        toolVersion = "1.10.0"
+        toolVersion = "1.14.1"
         config = files("$rootDir/detekt.yml")
         input = files("src/main/kotlin", "src/test/kotlin")
         buildUponDefaultConfig = true

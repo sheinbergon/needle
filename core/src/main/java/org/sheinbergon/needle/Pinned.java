@@ -13,6 +13,12 @@ import java.util.Optional;
 
 public interface Pinned {
 
+    /**
+     * Get the current `Pinned` if executing from within one.
+     *
+     * @return an {@code Optional} containing the current {@link Pinned},
+     * or empty if the calling code does not run within one.
+     */
     @Nonnull
     static Optional<Pinned> current() {
         return Optional.of(Thread.currentThread())
