@@ -4,8 +4,15 @@ import com.google.common.collect.Sets
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
-import java.util.concurrent.*
+import org.sheinbergon.needle.`0`
+import org.sheinbergon.needle.`1`
+import org.sheinbergon.needle.Pinned
+import org.sheinbergon.needle.availableCores
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 class PinnedExecutorsTest {
 

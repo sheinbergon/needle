@@ -1,10 +1,24 @@
 package org.sheinbergon.needle.knitter.coroutines
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
+import org.sheinbergon.needle.`1`
+import org.sheinbergon.needle.AffinityDescriptor
+import org.sheinbergon.needle.Needle
+import org.sheinbergon.needle.availableCores
+import org.sheinbergon.needle.binaryTestMask
+import org.sheinbergon.needle.negatedBinaryTestMask
+import org.sheinbergon.needle.negatedTestAffinityDescriptor
+import org.sheinbergon.needle.negatedTextTestMask
+import org.sheinbergon.needle.testAffinityDescriptor
+import org.sheinbergon.needle.textTestMask
 
 class PinnedDispatchersTest {
 

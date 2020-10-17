@@ -3,8 +3,17 @@ package org.sheinbergon.needle.concurrent
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.*
+import org.sheinbergon.needle.`0`
+import org.sheinbergon.needle.`1`
+import org.sheinbergon.needle.`2`
+import org.sheinbergon.needle.Pinned
+import org.sheinbergon.needle.PinnedThread
+import org.sheinbergon.needle.binaryTestMask
 import org.sheinbergon.needle.concurrent.util.ResettableOneOffLatch
+import org.sheinbergon.needle.default
+import org.sheinbergon.needle.negatedBinaryTestMask
+import org.sheinbergon.needle.negatedTestAffinityDescriptor
+import org.sheinbergon.needle.testAffinityDescriptor
 import java.util.concurrent.RecursiveAction
 
 class GovernedAffinityPinnedThreadFactoryTest {
