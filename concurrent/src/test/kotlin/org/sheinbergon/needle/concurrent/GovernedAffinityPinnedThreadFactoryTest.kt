@@ -87,7 +87,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
   @Test
   fun `Initialize the factory without a mask and alter the affinity of created pinned fork-join threads`() {
     val factory = GovernedAffinityPinnedThreadFactory()
-    PinnedForkJoinPool(`1`, factory).use { pool ->
+    PinnedExecutors.newPinnedWorkStealingPool(`1`, factory).let { pool ->
       val action = UnlatchAndSleepAction()
       pool.execute(action)
       latch.await(true)
@@ -103,7 +103,7 @@ class GovernedAffinityPinnedThreadFactoryTest {
   @Test
   fun `Initialize the factory using a mask and alter the affinity of newly created pinned fork-join threads`() {
     val factory = GovernedAffinityPinnedThreadFactory(testAffinityDescriptor)
-    PinnedForkJoinPool(`2`, factory).use { pool ->
+    PinnedExecutors.newPinnedWorkStealingPool(`2`, factory).let { pool ->
       val action1 = UnlatchAndSleepAction()
       pool.execute(action1)
       latch.await(true)

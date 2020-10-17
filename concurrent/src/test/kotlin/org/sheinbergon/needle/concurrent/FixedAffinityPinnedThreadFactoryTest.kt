@@ -25,7 +25,7 @@ class FixedAffinityPinnedThreadFactoryTest {
 
   private fun testPinnedForkJoinWorkerThreadInception(factory: PinnedThreadFactory) {
     val latch = CountDownLatch(`1`)
-    PinnedForkJoinPool(`1`, factory).use {
+    PinnedExecutors.newPinnedWorkStealingPool(`1`, factory).let {
       val action = action(latch)
       it.submit(action)
       latch.await()

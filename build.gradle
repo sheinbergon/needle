@@ -31,7 +31,7 @@ allprojects {
     ext.nexus.url = nexus.target.equals('SNAPSHOT') ? ossSnapshotsRepositoryUrl : ossReleasesRepositoryUrl
 
     group "org.sheinbergon"
-    version "0.2.1"
+    version "0.3.0"
 
     sourceCompatibility = 11
 
