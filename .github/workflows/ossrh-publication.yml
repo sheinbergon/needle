@@ -2,7 +2,7 @@ name: multi-platform-ci
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   ci:
@@ -20,7 +20,7 @@ jobs:
           architecture: x64
 
       - name: Publish To Release Repository
-        run: ./gradlew publish closeAndReleaseRepository
+        run: ./gradlew publishToSonatype
         env:
           NEXUS_TARGET: RELEASE
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
