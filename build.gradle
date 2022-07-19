@@ -140,7 +140,7 @@ nexusPublishing {
         maxRetries.set(100)
         delayBetween.set(Duration.ofSeconds(5))
     }
-    useStaging = "${nexus.target}" == "SNAPSHOT"
+    useStaging = (provider { "${nexus.target}".toString() == "RELEASE" })
     repositories {
         sonatype {
             stagingProfileId = '8fd6a6ae6b815'
