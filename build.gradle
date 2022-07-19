@@ -135,13 +135,12 @@ wrapper {
     gradleVersion = "7.4.2"
 }
 
-
 nexusPublishing {
     transitionCheckOptions {
         maxRetries.set(100)
         delayBetween.set(Duration.ofSeconds(5))
     }
-    useStaging = "${nexus.target}".equals('SNAPSHOT')
+    useStaging = "${nexus.target}" == "SNAPSHOT"
     repositories {
         sonatype {
             stagingProfileId = '8fd6a6ae6b815'
