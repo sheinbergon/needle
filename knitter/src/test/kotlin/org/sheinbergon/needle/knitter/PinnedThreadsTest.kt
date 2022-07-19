@@ -19,10 +19,11 @@ class PinnedThreadsTest {
       start = false,
       name = NEEDLE,
       contextClassLoader = ClassLoader.getPlatformClassLoader(),
-      isDaemon = true,
-      affinity = testAffinityDescriptor) {
-      latch.countDown()
-      runCatching { Thread.sleep(1250) }
+          isDaemon = true,
+      affinity = testAffinityDescriptor
+    ) {
+        latch.countDown()
+        runCatching { Thread.sleep(1250) }
     }
     pinned.isAlive shouldBe false
     pinned.start()

@@ -50,6 +50,7 @@ private fun List<IntRange>.textMask() = this.map {
   }
 }.joinToString(separator = AffinityDescriptor.SPECIFICATION_DELIMITER)
 
+@Suppress("NestedBlockDepth")
 private fun binaryMaskRanges(mask: Long): List<IntRange> {
   var start = `-1`
   var binaryMask = mask
@@ -92,7 +93,7 @@ private fun resetPlatform() {
 }
 
 private fun setPlatform(resolver: AffinityResolver<*>) {
-  val affinityResolver = Needle::class.java.getDeclaredField("affinityResolver")
+  val affinityResolver = Needle::class.java.getDeclaredField("RESOLVER")
   val modifiers = Field::class.java.getDeclaredField("modifiers")
   affinityResolver.trySetAccessible()
   modifiers.trySetAccessible()

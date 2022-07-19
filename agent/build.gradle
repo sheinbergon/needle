@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 dependencies {
@@ -7,10 +7,9 @@ dependencies {
     implementation project(':needle-core')
     testImplementation project(':needle-core').sourceSets.test.output
 
-    implementation 'net.bytebuddy:byte-buddy:1.10.14'
-
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.11.2'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.2'
+    implementation 'net.bytebuddy:byte-buddy:1.12.12'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.3'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -69,7 +68,7 @@ afterEvaluate {
     publish.dependsOn shadowJar
     assemble.dependsOn shadowJar
     build.dependsOn shadowJar
-    uploadArchives.dependsOn shadowJar
+    //uploadArchives.dependsOn shadowJar
 }
 
 publishing {
@@ -92,7 +91,6 @@ publishing {
                         distribution = 'repo'
                     }
                 }
-
                 developers {
                     developer {
                         id = 'sheinbergon'
@@ -100,23 +98,10 @@ publishing {
                         email = 'ishinberg0@gmail.com'
                     }
                 }
-
                 scm {
                     url = 'https://github.com/sheinbergon/needle'
                     connection = 'scm:https://github.com/sheinbergon/needle.git'
                     developerConnection = 'scm:git@github.com:sheinbergon/needle.git'
-                }
-            }
-
-            repositories {
-                mavenLocal()
-                maven {
-                    name "oss-sonatype-nexus"
-                    url nexus.url
-                    credentials {
-                        username = nexus.username
-                        password = nexus.password
-                    }
                 }
             }
         }
