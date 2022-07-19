@@ -1,7 +1,7 @@
 # Needle
 
 [![Codecov](https://img.shields.io/codecov/c/github/sheinbergon/needle?logo=codecov&style=for-the-badge)](https://codecov.io/gh/sheinbergon/needle)
-[![Codacy grade](https://img.shields.io/codacy/grade/9714c34bb5464296afdc7fe4de8f745a?logo=codacy&style=for-the-badge)](https://app.codacy.com/manual/sheinbergon/needle)
+[![Codacy grade](https://img.shields.io/codacy/grade/b038c1739cec4d439736125a3e376139?logo=codacy&style=for-the-badge)](https://app.codacy.com/manual/sheinbergon/needle)
 [![GitHub](https://img.shields.io/github/license/sheinbergon/needle?color=pink&logo=apache&style=for-the-badge)](https://github.com/sheinbergon/needle/blob/main/LICENSE)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sheinbergon/needle/multi-platform-ci?logo=github&style=for-the-badge)](https://github.com/sheinbergon/needle/actions?query=workflow%3Amulti-platform-ci)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/sheinbergon/needle?color=%2340E0D0&logo=github&style=for-the-badge)](https://github.com/sheinbergon/needle/releases/latest)
