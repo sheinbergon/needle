@@ -20,7 +20,7 @@ jobs:
           java-version: '11'
 
       - name: Publish To Release Repository
-        run: ./gradlew publishToSonatype
+        run: ./gradlew publishToSonatype closeAndReleaseStagingRepository
         env:
           NEXUS_TARGET: RELEASE
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
