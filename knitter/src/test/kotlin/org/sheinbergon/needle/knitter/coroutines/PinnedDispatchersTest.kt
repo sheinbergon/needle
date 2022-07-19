@@ -1,15 +1,14 @@
 package org.sheinbergon.needle.knitter.coroutines
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
-import org.sheinbergon.needle.`1`
 import org.sheinbergon.needle.AffinityDescriptor
 import org.sheinbergon.needle.Needle
 import org.sheinbergon.needle.availableCores
@@ -56,15 +55,22 @@ class PinnedDispatchersTest {
     runBlocking { blockingAssertPool(availableCores, deferred2, binaryTestMask, textTestMask) }
   }
 
-  private fun deferredAffinitySingleAsync(dispatcher: CoroutineDispatcher) =
-    GlobalScope.async(dispatcher) { Needle.affinity() }
+  private fun deferredAffinitySingleAsync(
+    dispatcher: CoroutineDispatcher
+  ) = CoroutineScope(dispatcher).async {
+    Needle.affinity()
+  }
 
-  private fun deferredAffinityPoolAsync(cores: Int, dispatcher: CoroutineDispatcher) = (`1`..cores)
-    .map {
-      GlobalScope.async(dispatcher) {
+  private fun deferredAffinityPoolAsync(
+    cores: Int,
+    dispatcher: CoroutineDispatcher
+  ) = CoroutineScope(dispatcher).run {
+    (`1`..cores).map {
+      async {
         Thread.currentThread() to Needle.affinity()
       }
     }
+  }
 
   private suspend fun blockingAssertSingle(
     deferred: Deferred<AffinityDescriptor>,

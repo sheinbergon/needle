@@ -7,7 +7,7 @@ plugins {
     id 'maven-publish'
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id "org.jetbrains.kotlin.jvm" version "1.7.10"
-    id "io.gitlab.arturbosch.detekt" version "1.20.0"
+    id "io.gitlab.arturbosch.detekt" version "1.21.0"
     id 'io.franzbecker.gradle-lombok' version '5.0.0'
 }
 
@@ -28,7 +28,7 @@ allprojects {
     group "org.sheinbergon"
     version "0.4.0"
 
-    sourceCompatibility = 11
+    sourceCompatibility = JavaVersion.VERSION_11
 
     repositories {
         mavenLocal()
@@ -57,9 +57,12 @@ subprojects {
         testImplementation "org.jetbrains.kotlin:kotlin-stdlib"
 
         testImplementation 'org.junit.platform:junit-platform-runner:1.8.2'
+        testImplementation 'org.junit.platform:junit-platform-suite-engine:1.8.2'
         testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
         testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.2'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+        detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0"
     }
 
     lombok {
@@ -94,7 +97,7 @@ subprojects {
     }
 
     detekt {
-        toolVersion = "1.20.0"
+        toolVersion = "1.21.0"
         config = files("$rootDir/detekt.yml")
         input = files("src/main/kotlin", "src/test/kotlin")
         buildUponDefaultConfig = true
@@ -107,14 +110,14 @@ subprojects {
         compileTestKotlin {
             dependsOn('detekt')
             kotlinOptions {
-                jvmTarget = 11
+                jvmTarget = JavaVersion.VERSION_11
             }
         }
 
         compileKotlin {
             dependsOn('detekt')
             kotlinOptions {
-                jvmTarget = 11
+                jvmTarget = JavaVersion.VERSION_11
             }
         }
 

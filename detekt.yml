@@ -1,5 +1,5 @@
 build:
-  maxIssues: 1
+  maxIssues: 0
   weights:
   # complexity: 2
   # LongParameterList: 1
@@ -59,7 +59,7 @@ complexity:
     ignoreSimpleWhenEntries: true
   LabeledExpression:
     active: false
-    ignoredLabels: ""
+    ignoredLabels: []
   LargeClass:
     active: true
     threshold: 600
@@ -69,15 +69,14 @@ complexity:
   LongParameterList:
     excludes: "**/*Configuration.kt"
     active: true
-    functionThreshold: 8
-    constructorThreshold: 10
+    functionThreshold: 7
+    constructorThreshold: 9
     ignoreDefaultParameters: false
   MethodOverloading:
     active: false
     threshold: 6
   NestedBlockDepth:
     active: true
-    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
     threshold: 4
   StringLiteralDuplication:
     active: false
@@ -135,7 +134,7 @@ exceptions:
   active: true
   ExceptionRaisedInUnexpectedLocation:
     active: false
-    methodNames: 'toString,hashCode,equals,finalize'
+    methodNames: ['toString','hashCode','equals','finalize']
   InstanceOfCheckForException:
     active: false
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
@@ -149,14 +148,14 @@ exceptions:
     active: false
   SwallowedException:
     active: false
-    ignoredExceptionTypes: 'InterruptedException,NumberFormatException,ParseException,MalformedURLException'
+    ignoredExceptionTypes: ['InterruptedException','NumberFormatException','ParseException','MalformedURLException']
   ThrowingExceptionFromFinally:
     active: false
   ThrowingExceptionInMain:
     active: false
   ThrowingExceptionsWithoutMessageOrCause:
     active: false
-    exceptions: 'IllegalArgumentException,IllegalStateException,IOException'
+    exceptions: ['IllegalArgumentException','IllegalStateException','IOException']
   ThrowingNewInstanceOfSameException:
     active: false
   TooGenericExceptionCaught:
@@ -293,7 +292,7 @@ naming:
   ForbiddenClassName:
     active: false
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
-    forbiddenName: ''
+    forbiddenName: []
   FunctionMaxLength:
     active: false
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
@@ -336,7 +335,7 @@ naming:
     active: true
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
     constantPattern: '`?[A-Za-z0-9][_A-Za-z0-9]*`?'
-    propertyPattern: '[A-Za-z][_A-Za-z0-9]*'
+    propertyPattern: '[A-Za-z0-9][_A-Za-z0-9]*`?'
     privatePropertyPattern: '_?[A-Za-z][_A-Za-z0-9]*'
   VariableMaxLength:
     active: false
@@ -363,7 +362,7 @@ performance:
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
   SpreadOperator:
     active: true
-    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
+    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt,**/Redisson*.kt"
   UnnecessaryTemporaryInstantiation:
     active: true
 
@@ -386,7 +385,7 @@ potential-bugs:
   LateinitUsage:
     active: false
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
-    excludeAnnotatedProperties: ""
+    ignoreAnnotated: [ ]
     ignoreOnClassesPattern: ""
   MissingWhenCase:
     active: false
@@ -412,6 +411,9 @@ style:
     conversionFunctionPrefix: 'to'
   DataClassShouldBeImmutable:
     active: false
+  DestructuringDeclarationWithTooManyEntries:
+    active: true
+    maxDestructuringEntries: 4
   EqualsNullCall:
     active: false
   EqualsOnSignatureLine:
@@ -423,10 +425,10 @@ style:
     includeLineWrapping: false
   ForbiddenComment:
     active: true
-    values: 'TODO:,FIXME:,STOPSHIP:'
+    values: ['TODO:','FIXME:','STOPSHIP:']
   ForbiddenImport:
     active: false
-    imports: ''
+    imports: []
   ForbiddenVoid:
     active: false
     ignoreOverridden: false
@@ -440,9 +442,9 @@ style:
   MagicNumber:
     active: true
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
-    ignoreNumbers: '-1,0,1,2'
+    ignoreNumbers: ['-1','0','1','2','100','1000']
     ignoreHashCodeFunction: true
-    ignorePropertyDeclaration: false
+    ignorePropertyDeclaration: true
     ignoreConstantDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: false
@@ -499,10 +501,10 @@ style:
     active: false
   UnderscoresInNumericLiterals:
     active: false
-    acceptableDecimalLength: 5
+    acceptableLength: 5
   UnnecessaryAbstractClass:
     active: false
-    excludeAnnotatedClasses: "dagger.Module"
+    ignoreAnnotated: [ ]
   UnnecessaryApply:
     active: false
   UnnecessaryInheritance:
@@ -524,7 +526,7 @@ style:
     active: false
   UseDataClass:
     active: false
-    excludeAnnotatedClasses: ""
+    ignoreAnnotated: [ ]
   UseRequire:
     active: false
   UselessCallOnNotNull:
@@ -536,4 +538,4 @@ style:
   WildcardImport:
     active: false
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
-    excludeImports: 'java.util.*,kotlinx.android.synthetic.*'
+    excludeImports: ['java.util.*','kotlinx.android.synthetic.*']

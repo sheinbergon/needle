@@ -10,12 +10,11 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.platform.runner.JUnitPlatform
-import org.junit.runner.RunWith
+import org.junit.platform.suite.api.Suite
 import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
-@RunWith(JUnitPlatform::class)
+@Suite
 class NeedleTest {
 
   private lateinit var latch: CountDownLatch

@@ -8,12 +8,12 @@ import org.sheinbergon.needle.PinnedThread
 private const val `0L` = 0L
 
 fun pinnedThread(
-    start: Boolean = true,
-    isDaemon: Boolean = false,
-    contextClassLoader: ClassLoader? = null,
-    name: String? = null,
-    affinity: AffinityDescriptor = AffinityDescriptor.from(`0L`),
-    block: () -> Unit
+  start: Boolean = true,
+  isDaemon: Boolean = false,
+  contextClassLoader: ClassLoader? = null,
+  name: String? = null,
+  affinity: AffinityDescriptor = AffinityDescriptor.from(`0L`),
+  block: () -> Unit
 ): PinnedThread {
   val pinnedThread = PinnedThread(block::invoke, affinity)
   if (isDaemon) {

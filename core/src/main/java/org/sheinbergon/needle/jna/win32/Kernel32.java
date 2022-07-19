@@ -10,41 +10,41 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.win32.W32APIOptions;
 import lombok.val;
 
-
+@SuppressWarnings("MethodName")
 public final class Kernel32 {
 
-    /**
-     * Kernel32 DLL name.
-     */
-    private static final String LIBRARY = "kernel32";
+  /**
+   * Kernel32 DLL name.
+   */
+  private static final String LIBRARY = "kernel32";
 
-    static {
-        // Only register DLL on Windows based platforms
-        if (Platform.isWindows()) {
-            val library = NativeLibrary.getInstance(LIBRARY, W32APIOptions.DEFAULT_OPTIONS);
-            Native.register(library);
-        }
+  static {
+    // Only register DLL on Windows based platforms
+    if (Platform.isWindows()) {
+      val library = NativeLibrary.getInstance(LIBRARY, W32APIOptions.DEFAULT_OPTIONS);
+      Native.register(library);
     }
+  }
 
-    static native WinNT.HANDLE GetCurrentProcess();
+  static native WinNT.HANDLE GetCurrentProcess();
 
-    static native WinDef.DWORD GetCurrentThreadId();
+  static native WinDef.DWORD GetCurrentThreadId();
 
-    static native WinNT.HANDLE OpenThread(
-            WinDef.DWORD dwDesiredAccess,
-            WinDef.BOOL bInheritHandle,
-            WinDef.DWORD dwThreadId);
+  static native WinNT.HANDLE OpenThread(
+      WinDef.DWORD dwDesiredAccess,
+      WinDef.BOOL bInheritHandle,
+      WinDef.DWORD dwThreadId);
 
-    static native boolean GetProcessAffinityMask(
-            WinNT.HANDLE hProcess,
-            LongByReference lpProcessAffinityMask,
-            LongByReference lpSystemAffinityMask);
+  static native boolean GetProcessAffinityMask(
+      WinNT.HANDLE hProcess,
+      LongByReference lpProcessAffinityMask,
+      LongByReference lpSystemAffinityMask);
 
-    static native BaseTSD.DWORD_PTR SetThreadAffinityMask(
-            WinNT.HANDLE hThread,
-            BaseTSD.DWORD_PTR dwThreadAffinityMask);
+  static native BaseTSD.DWORD_PTR SetThreadAffinityMask(
+      WinNT.HANDLE hThread,
+      BaseTSD.DWORD_PTR dwThreadAffinityMask);
 
 
-    private Kernel32() {
-    }
+  private Kernel32() {
+  }
 }

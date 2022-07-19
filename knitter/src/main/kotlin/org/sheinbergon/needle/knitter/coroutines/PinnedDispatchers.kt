@@ -9,12 +9,11 @@ import org.sheinbergon.needle.concurrent.GovernedAffinityPinnedThreadFactory
 import org.sheinbergon.needle.concurrent.PinnedExecutors
 import kotlin.coroutines.CoroutineContext
 
-
-private const val `1` = 1
+const val `1` = 1
 
 private class GovernedAffinityDelegatingDispatcher(
-    parallelism: Int,
-    affinity: AffinityDescriptor
+  parallelism: Int,
+  affinity: AffinityDescriptor
 ) : GovernedAffinityDispatcher() {
 
   val factory: GovernedAffinityPinnedThreadFactory
@@ -33,13 +32,13 @@ private class GovernedAffinityDelegatingDispatcher(
 }
 
 fun governedAffinitySingleThread(affinity: AffinityDescriptor): GovernedAffinityDispatcher =
-    governedAffinityThreadPool(`1`, affinity)
+  governedAffinityThreadPool(`1`, affinity)
 
 fun governedAffinityThreadPool(parallelism: Int, affinity: AffinityDescriptor): GovernedAffinityDispatcher =
-    GovernedAffinityDelegatingDispatcher(parallelism, affinity)
+  GovernedAffinityDelegatingDispatcher(parallelism, affinity)
 
 fun fixedAffinitySingleThread(affinity: AffinityDescriptor) =
-    fixedAffinityThreadPool(`1`, affinity)
+  fixedAffinityThreadPool(`1`, affinity)
 
 fun fixedAffinityThreadPool(parallelism: Int, affinity: AffinityDescriptor): CoroutineDispatcher {
   val factory = FixedAffinityPinnedThreadFactory(affinity)

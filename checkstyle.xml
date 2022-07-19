@@ -49,11 +49,6 @@
         <property name="fileNamePattern" value="module\-info\.java$"/>
     </module>
 
-    <module name="SuppressionFilter">
-        <property name="file" value="${config_loc}/suppressions.xml" default="suppressions.xml"/>
-        <property name="optional" value="false"/>
-    </module>
-
     <!-- Checks that a package-info.java file exists for each package.     -->
     <!-- See https://checkstyle.org/config_javadoc.html#JavadocPackage -->
     <module name="JavadocPackage"/>
@@ -66,11 +61,13 @@
     <!-- See https://checkstyle.org/config_misc.html#Translation -->
     <module name="Translation"/>
 
+    <module name="SuppressWarningsFilter"/>
+
     <!-- Checks for Size Violations.                    -->
     <!-- See https://checkstyle.org/config_sizes.html -->
     <module name="FileLength"/>
     <module name="LineLength">
-        <property name="max" value="120"/>
+        <property name="max" value="150"/>
         <property name="fileExtensions" value="java"/>
     </module>
 
@@ -96,6 +93,16 @@
 
     <module name="TreeWalker">
 
+        <module name="SuppressWarningsHolder"/>
+
+        <module name="Indentation">
+            <property name="basicOffset" value="2"/>
+            <property name="caseIndent" value="2"/>
+            <property name="arrayInitIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="2"/>
+        </module>
+
+
         <!-- Checks for Javadoc comments.                     -->
         <!-- See https://checkstyle.org/config_javadoc.html -->
         <module name="InvalidJavadocPosition"/>
@@ -119,7 +126,7 @@
 
         <!-- Checks for imports                              -->
         <!-- See https://checkstyle.org/config_imports.html -->
-        <module name="AvoidStarImport"/>
+        <!--<module name="AvoidStarImport"/>-->
         <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
         <module name="RedundantImport"/>
         <module name="UnusedImports">
